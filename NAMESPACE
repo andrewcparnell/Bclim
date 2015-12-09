@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+
+useDynLib(Bclim)
+
+import(MASS)
+import(mclust)
+importFrom(statmod,rinvgauss)
