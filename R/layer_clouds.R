@@ -3,18 +3,19 @@ layer_clouds = function(pollen, path_to_rs = system.file('data',package='Bclim')
 # Function to turn pollen data into marginal data posteriors and then fit them to mixtures of normal distributions
 
 # Load in the response surfaces from the package
-load(paste(path_to_rs,'/data/required.data3D'))
+con = url(paste0(path_to_rs,'requireddata3D.RData'))
+load(con)
 
 ############ PART 1 - CREATE MDPs - WRITTEN BY JAMES
 
 # Number of slices
-nslices = nrow(pollen.data)
+nslices = nrow(pollen)
 
 # Format pollen data
 #getting rowSums ~ 1000
-myrowsums = rowSums(pollen.data)
+myrowsums = rowSums(pollen)
 myrowsums[myrowsums==0] = 1
-Pollen = as.matrix(round(pollen.data/myrowsums*1000))
+Pollen = as.matrix(round(pollen/myrowsums*1000))
 Mu = V = matrix(0,175616,28)
 
 ##### loading predictors & parameters
@@ -46,8 +47,7 @@ result = .C("PalaeoRecon3D",
           as.double(Buffer),
           as.integer(nquadpts),
           as.double(quadpts),
-          as.double(quadprobs)
-          ,PACKAGE="Bclim")
+          as.double(quadprobs))
 res = result[[2]]
 res[res==0] = -Inf
 
