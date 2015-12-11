@@ -55,7 +55,7 @@ for(i=0;i<*nslices;i++){                                                        
 
     progress = (double) 100*i/ *nslices;
     Rprintf("\r");
-    Rprintf("Completed: %3.2f %%",progress);
+    Rprintf("Stage 1: %3.2f %% completed",progress);
 	Rprintf("\r");
 	R_FlushConsole();
 	//fflush(stdout);

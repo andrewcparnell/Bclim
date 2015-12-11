@@ -100,7 +100,7 @@ p.mat = matrix(NA,nrow=n,ncol=G)
 ans.all = list()
 for(i in 1:n) {
   cat("\r")
-  cat("Completed:",format(round(100*i/n,2), nsmall = 2),"%")
+  cat("Stage 2: ",format(round(100*i/n,2), nsmall = 2),"% completed",sep='')
   ans.all[[i]] = mclust::Mclust(MDP2[,i,],G=G,modelNames="EII",warn=mixwarnings)
 }
 
