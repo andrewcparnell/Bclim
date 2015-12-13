@@ -210,7 +210,7 @@ for(iter=0;iter<*iterations;iter++) {
 	if(iter%*reportevery==0) {
 	    progress = (double) 100*iter/ *iterations;
         Rprintf("\r");
-        Rprintf("Completed: %4.2f %%",progress);
+        Rprintf("Optimising parameters: %3.2f %% completed",progress);
         //Rprintf("Completed: %i ",iter);
 	    Rprintf("\r");
 	    R_FlushConsole();

@@ -1,95 +1,132 @@
 climate_histories = function(layer_clouds,
                              chronology,
                              time_grid,
-                             nchron=2000,
-                             control.mcmc=list(iterations=100000,
+                             n_mix=10, 
+                             mix_warnings=FALSE,
+                             n_chron=2000,
+                             control_mcmc=list(iterations=100000,
                                                burnin=20000,
                                                thinby=40,
                                                report=100),
-                             control.chains=list(v.mh.sd=2,
-                                                 phi1.mh.sd=1,
-                                                 phi2.mh.sd=10,
-                                                 vstart=statmod::rinvgauss(layers$n-1,2,1),
-                                                 Zstart=sample(1:layer_clouds$G,
-                                                               layer_clouds$n,
+                             control_chains=list(v_mh_sd=2,
+                                                 phi1_mh_sd=1,
+                                                 phi2_mh_sd=10,
+                                                 v_start=statmod::rinvgauss(layer_clouds$n_layers-1,2,1),
+                                                 Z_start=sample(1:n_mix,
+                                                                layer_clouds$n_layers,
                                                                replace=TRUE),
-                                                 phi1start=rep(3,layer_clouds$m),
-                                                 phi2start=rep(20,layer_clouds$m)),
-                             control.priors=list(phi1dlmean=rep(1.275,layer_clouds$m),
-                                                 phi1dlsd=rep(0.076,layer_clouds$m),
-                                                 phi2dlmean=rep(4.231,layer_clouds$m),
-                                                 phi2dlsd=rep(0.271,layer_clouds$m))) {
+                                                 phi1_start=rep(3,layer_clouds$n_dimensions),
+                                                 phi2_start=rep(20,layer_clouds$n_dimensions)),
+                             control_priors=list(phi1_dl_mean=rep(1.275,layer_clouds$n_dimensions),
+                                                 phi1_dl_sd=rep(0.076,layer_clouds$n_dimensions),
+                                                 phi2_dl_mean=rep(4.231,layer_clouds$n_dimensions),
+                                                 phi2dl_sd=rep(0.271,layer_clouds$n_dimensions))) {
   
+################# MIXTURE ESTIMATION #################
   
-# MCMC part
-  
+# Calculate n.samp = number of samples, n = number of layers, m = number of climate dimensions
+n_samples = layer_clouds$n_samples
+n_layers = layer_clouds$n_layers
+n_dimensions = layer_clouds$n_dimensions
+
+scale_mean = rep(0,n_dimensions)
+scale_var = rep(1,n_dimensions)
+MDP = layer_clouds$layer_clouds
+for(i in 1:n_dimensions) {
+  scale_mean[i] = mean(layer_clouds$layer_clouds[,,i])
+  scale_var[i] = median(diag(var(layer_clouds$layer_clouds[,,i])))
+  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
+}
+
+# Set up mixture components
+mean_mat = array(NA,dim=c(n_layers,n_dimensions,n_mix))
+prec_mat = array(NA,dim=c(n_layers,n_dimensions,n_mix))
+prop_mat = matrix(NA,nrow=n_layers,ncol=n_mix)
+
+ans.all = list()
+cat('Mixture estimation:\n')
+for(i in 1:n_layers) {
+  cat("\r")
+  cat(format(round(100*i/n_layers,2), nsmall = 2),"% completed",sep='')
+  ans.all[[i]] = mclust::Mclust(MDP[,i,],G=n_mix,modelNames="EII",warn=mix_warnings)
+}
+cat('\n')
+
+for(i in 1:n_layers) {
+  mean_mat[i,,] = ans.all[[i]]$parameters$mean
+  for(g in 1:n_mix) {
+    prec_mat[i,,g] = 1/diag(ans.all[[i]]$parameters$variance$sigma[,,g])
+  }
+  prop_mat[i,] = ans.all[[i]]$parameters$pro
+  # End of loop through n layers
+}
+
+################# MCMC #################
+
 # Create output matrices
-remaining = (control.mcmc$iterations-control.mcmc$burnin)/control.mcmc$thinby
+remaining = (control_mcmc$iterations-control_mcmc$burnin)/control_mcmc$thinby
 if(remaining!=as.integer(remaining)) 
   stop("Iterations minus burnin divided by thinby must be an integer")
 
-vout = rep(0,length=layer_clouds$m*(layer_clouds$n-1)*remaining)
-zout = rep(0,length=layer_clouds$m*layer_clouds$n*remaining)
-chronout = rep(0,length=layer_clouds$n*remaining)
-cout = rep(0,length=layer_clouds$m*(layer_clouds$n)*remaining)
-phi1out = phi2out = rep(0,length=layer_clouds$m*remaining)
+vout = rep(0,length=n_dimensions*(n_layers-1)*remaining)
+zout = rep(0,length=n_dimensions*n_layers*remaining)
+chronout = rep(0,length=n_layers*remaining)
+cout = rep(0,length=n_dimensions*(n_layers)*remaining)
+phi1out = phi2out = rep(0,length=n_dimensions*remaining)
 
 # Re-dim the precisions matrix
-Bclimprec = layer_clouds$tau.mat[,1,]
+Bclimprec = prec_mat[,1,]
 
 # Write out the chronologies to a temporary file
 chron_loc = paste0(getwd(),'/chron.txt')
-if(any(chronology>1000) warning("Ensure chronologies are provided in thousands of years.")
-write.table(chronology,file=chon_loc,row.names=FALSE,col.names=FALSE,quote=FALSE)
-
-cat("\n")
-cat("Running MCMC...\n")
+if(any(chronology>1000)) warning("Ensure chronologies are provided in thousands of years.")
+write.table(chronology[1:n_chron,],file=chron_loc,row.names=FALSE,col.names=FALSE,quote=FALSE)
 
 # Run C code
 out = .C("BclimMCMC3D", 
-          as.integer(layer_clouds$G),
-          as.integer(layer_clouds$n),
-          as.integer(layer_clouds$m),
-          as.integer(nchron),
-          as.double(layer_clouds$p.mat),
-          as.double(layer_clouds$mu.mat),
+          as.integer(n_mix),
+          as.integer(n_layers),
+          as.integer(n_dimensions),
+          as.integer(n_chron),
+          as.double(prop_mat),
+          as.double(mean_mat),
           as.double(Bclimprec),
           as.character(chron_loc),
-          as.integer(control.mcmc$iterations),
-          as.integer(control.mcmc$burnin),
-          as.integer(control.mcmc$thinby),
-          as.integer(control.mcmc$report),
-          as.double(control.chains$v.mh.sd),
-          as.double(control.chains$vstart),
-          as.integer(control.chains$Zstart),
-          as.double(control.chains$phi1start),
-          as.double(control.chains$phi2start),
+          as.integer(control_mcmc$iterations),
+          as.integer(control_mcmc$burnin),
+          as.integer(control_mcmc$thinby),
+          as.integer(control_mcmc$report),
+          as.double(control_chains$v_mh_sd),
+          as.double(control_chains$v_start),
+          as.integer(control_chains$Z_start),
+          as.double(control_chains$phi1_start),
+          as.double(control_chains$phi2_start),
           as.double(vout),
           as.integer(zout),
           as.double(chronout),
           as.double(cout),
           as.double(phi1out),
           as.double(phi2out),
-          as.double(control.priors$phi1dlmean),
-          as.double(control.priors$phi1dlsd),
-          as.double(control.priors$phi2dlmean),
-          as.double(control.priors$phi2dlsd),
-          as.double(control.chains$phi1.mh.sd),
-          as.double(control.chains$phi2.mh.sd)
+          as.double(control_priors$phi1_dl_mean),
+          as.double(control_priors$phi1_dl_sd),
+          as.double(control_priors$phi2_dl_mean),
+          as.double(control_priors$phi2_dl_sd),
+          as.double(control_chains$phi1_mh_sd),
+          as.double(control_chains$phi2_mh_sd)
 )
 
-vout  = array(NA,dim=c(remaining,layer_clouds$n-1,layer_clouds$m))
-cout  = array(NA,dim=c(remaining,layer_clouds$n,layer_clouds$m))
+vout  = array(NA,dim=c(remaining,n_layers-1,n_dimensions))
+cout  = array(NA,dim=c(remaining,n_layers,n_dimensions))
 for(i in 1:remaining) {
-  for(j in 1:layer_clouds$m) {
-    vout[i,,j] = out[[18]][seq(1,layer_clouds$n-1)+(j-1)*(layer_clouds$n-1)+(i-1)*(layer_clouds$n-1)*layer_clouds$m]
-    cout[i,,j] = out[[21]][seq(1,layer_clouds$n)+(j-1)*(layer_clouds$n)+(i-1)*(layer_clouds$n)*layer_clouds$m]
+  for(j in 1:n_dimensions) {
+    vout[i,,j] = out[[18]][seq(1,n_layers-1)+(j-1)*(n_layers-1)+(i-1)*(n_layers-1)*n_dimensions]
+    cout[i,,j] = out[[21]][seq(1,n_layers)+(j-1)*(n_layers)+(i-1)*(n_layers)*n_dimensions]
   }   
 }
-chronout = matrix(out[[20]],ncol=layer_clouds$n,nrow=remaining,byrow=TRUE)
-zout = matrix(out[[19]],ncol=layer_clouds$n,nrow=remaining,byrow=TRUE)
-phi1out = matrix(out[[22]],ncol=layer_clouds$m,nrow=remaining,byrow=TRUE)
-phi2out = matrix(out[[23]],ncol=layer_clouds$m,nrow=remaining,byrow=TRUE)
+chronout = matrix(out[[20]],ncol=n_layers,nrow=remaining,byrow=TRUE)
+zout = matrix(out[[19]],ncol=n_layers,nrow=remaining,byrow=TRUE)
+phi1out = matrix(out[[22]],ncol=n_dimensions,nrow=remaining,byrow=TRUE)
+phi2out = matrix(out[[23]],ncol=n_dimensions,nrow=remaining,byrow=TRUE)
   
 ###### Stage 2 - Interpolation
 
@@ -104,7 +141,7 @@ n.s = dim(clim)[1]
 n = dim(clim)[2]
 m = dim(clim)[3]
 n.g = length(time_grid)
-eps = 1E-5
+eps = 1e-5
 
 #	Create some arrays to hold the interpolated climates and squared volatilities v
 # Note that the storage here is longer as we have to interpolate onto a finer grid which includes the chronologies
@@ -113,12 +150,12 @@ v.interp.all = array(NA, dim = c(n.s , n.g-1+n, m))
 v.interp = array(NaN, dim = c(n.s, n.g-1, m))
 
 for (j in 1:m) {  #loop through clim dim
-  cat("Perform interpolation for climate dimension", j, "\n")
+  cat("Interpolation for climate dimension", j, "\n")
   
   for (i in 1:n.s) { #loop through each sample
     if(i%%10==0) {
       cat("\r")
-      cat("Interpolation: ",format(round(100*i/n.s,2), nsmall = 2),"% completed",sep='')
+      cat("",format(round(100*i/n.s,2), nsmall = 2),"% completed",sep='')
       if(i<n.s) {
         cat("\r")
       } else {
@@ -195,18 +232,19 @@ for (j in 1:m) {  #loop through clim dim
       v.interp[i,l,j] = sum(v.interp.all[i, time_grid.select.lower[l]:time_grid.select.upper[l], j])    
     }
     
-    if(any(is.na(clim.interp[i,,j]))) stop("Some interpolated climates have been given NAs")
-    if(any(is.na(v.interp[i,,j]))) stop("Some interpolated v values have been given NAs")
+    if(any(is.na(clim.interp[i,,j]))) browser()# stop("Some interpolated climates have been given NAs")
+    if(any(is.na(v.interp[i,,j]))) browser()# stop("Some interpolated v values have been given NAs")
     
   } #end of sample loops
 } #end climate dim loop
 
 cat("Completed! \n")
-return(list(clim.interp = clim.interp, v.interp = v.interp, time.grid=time_grid))
+clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_var),'*'),3,scale_mean,'+')
+out = list(histories = clim.interp.resc, time_grid=time_grid, layers=layers)
+class(out) = 'climate_histories'
+
+return(out)
 }
-
-
-
 
 
 NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
