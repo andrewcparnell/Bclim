@@ -244,8 +244,6 @@ out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer
 class(out) = 'climate_histories'
 
 return(out)
-}
-
 
 NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
   total.points = length(tb.points)
@@ -308,5 +306,6 @@ NIGextrap = function(curr.clim, curr.chron, tg.select, phi1, phi2, future=FALSE)
     return(list(NIG=cumsum(rnorm(length(t.diff), mean=0, sd=sqrt(v.out)))+ curr.clim, IG=v.out))
   }
 
+}
 
 }

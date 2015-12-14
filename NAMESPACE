@@ -3,7 +3,7 @@ exportPattern("^[[:alpha:]]+")
 useDynLib(Bclim)
 
 importFrom(MASS,kde2d)
-importFrom(mclust,Mclust)
+importFrom(mclust,Mclust,MclustBIC)
 importFrom(statmod,rinvgauss)
 importFrom(graphics,filled.contour)
 
