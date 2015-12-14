@@ -1,8 +1,9 @@
-layer_clouds = function(pollen, path_to_rs = 'http://mathsci.ucd.ie/~parnell_a/', nsamples=1000) {
+layer_clouds = function(pollen, path_to_rs = 'http://mathsci.ucd.ie/~parnell_a/', n_samples=1000) {
 
 # Function to turn pollen data into marginal data posteriors and then fit them to mixtures of normal distributions
 
 # Load in the response surfaces from the package
+required.data3D = NULL # Fix so that R doesn't complain about 'visible bindings'
 con = url(paste0(path_to_rs,'requireddata3D.RData'))
 load(con)
 
@@ -56,20 +57,20 @@ post = matrix(exp(res),nslices,175616,byrow=TRUE)
 post=post/rowSums(post)
 
 #####provide n samples from MTCO/GDD5 space including jittering
-MDP = rep(0,nsamples*nslices*3)
+MDP = rep(0,n_samples*nslices*3)
 
 for(i in 1:nslices) {
-  Firstsamp = sample(1:175616, nsamples, replace = TRUE, prob = post[i,])
-  jitter = cbind(runif(nsamples,-1,1),runif(nsamples,-1,1),runif(nsamples,-1,1))*cbind(rep(72.53,nsamples),rep(.7,nsamples),rep(10.206,nsamples))
+  Firstsamp = sample(1:175616, n_samples, replace = TRUE, prob = post[i,])
+  jitter = cbind(runif(n_samples,-1,1),runif(n_samples,-1,1),runif(n_samples,-1,1))*cbind(rep(72.53,n_samples),rep(.7,n_samples),rep(10.206,n_samples))
 
   jit_locations = Climate[Firstsamp,]+jitter
-  MDP[(i-1)*nsamples + (1:nsamples)] = jit_locations[,1]
-  MDP[nslices*nsamples+(i-1)*nsamples + (1:nsamples)] = jit_locations[,2]
-  MDP[nslices*nsamples*2+(i-1)*nsamples + (1:nsamples)] = jit_locations[,3]
+  MDP[(i-1)*n_samples + (1:n_samples)] = jit_locations[,1]
+  MDP[nslices*n_samples+(i-1)*n_samples + (1:n_samples)] = jit_locations[,2]
+  MDP[nslices*n_samples*2+(i-1)*n_samples + (1:n_samples)] = jit_locations[,3]
 }
 
 #restructuring samples array
-dim(MDP) = c(nsamples,nslices,3)
+dim(MDP) = c(n_samples,nslices,3)
 
 #naming dimensions
 dimnames(MDP) = list(NULL,NULL,c("GDD5","MTCO","AET/PET"))
@@ -77,7 +78,7 @@ dimnames(MDP) = list(NULL,NULL,c("GDD5","MTCO","AET/PET"))
 # Divide AET/PET by 1000 so that it's a proportion again
 MDP[,,3] = MDP[,,3]/1000
 
-Bclimdata = list(layer_clouds=MDP,n_samples=nsamples,n_layers=nslices,n_dimensions=3)
+Bclimdata = list(layer_clouds=MDP,n_samples=n_samples,n_layers=nslices,n_dimensions=3)
 class(Bclimdata) = 'layer_clouds'
 return(Bclimdata)
 

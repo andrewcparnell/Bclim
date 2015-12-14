@@ -1,5 +1,5 @@
 plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = rgb(0,0,1,0.2), col_ribbon=rgb(1,0,0,0.4),col_representative=rgb(0,1,0),present_left=TRUE,...) {
-  
+
 # First create base plot
 x_range = range(x$time_grid)
 if(!present_left) xrange = rev(xrange)
@@ -24,12 +24,12 @@ if(layer_clouds) {
 
     if(var(curr_chron)>0) {
       dens = MASS::kde2d(curr_chron,curr_MDP)
-      
+
       # Standardise and find 95% limit
       dens$z = dens$z/sum(dens$z)
       limits_diff = (max(dens$z)-min(dens$z))/100
-      
-      # Loop through confidence levels to plot    
+
+      # Loop through confidence levels to plot
       for(k in 1:length(conf)) {
         limits = min(dens$z)
         prop = 1
@@ -37,24 +37,24 @@ if(layer_clouds) {
           limits = limits+limits_diff
           prop = sum(dens$z[dens$z>limits])
         }
-        
+
         con_lines = contourLines(dens$x,dens$y,dens$z,levels=limits)
-        for(j in 1:length(con_lines)) polygon(con_lines[[j]]$x,con_lines[[j]]$y,col=col_clouds,border=col_clouds)  
+        for(j in 1:length(con_lines)) polygon(con_lines[[j]]$x,con_lines[[j]]$y,col=col_clouds,border=col_clouds)
       # End of loop through confidence levels
       }
-    # End of if statement for variance of chronology  
+    # End of if statement for variance of chronology
     } else {
       # If there's no variance so it's a vertical stripe
       for(k in 1:length(conf)) {
-        lines(c(curr_chron[1],curr_chron[1]),quantile(curr_MDP,probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2)),col=col_clouds)  
+        lines(c(curr_chron[1],curr_chron[1]),quantile(curr_MDP,probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2)),col=col_clouds)
       }
-    # End of if statement for stripe line  
+    # End of if statement for stripe line
     }
-  # End of loop through layers  
+  # End of loop through layers
   }
-# End of layer_clouds if statement  
+# End of layer_clouds if statement
 }
-  
+
 # Third add in climate ribbon if required
 if(climate_ribbon) {
   for(k in 1:length(conf)) {
@@ -79,6 +79,6 @@ if(most_representative>0) {
   for(i in 1:most_representative) {
     lines(x$time_grid,plot_lines[i,],col=col_representative,lwd=2)
   }
-} 
+}
 
 }

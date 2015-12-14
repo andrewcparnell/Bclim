@@ -2,6 +2,12 @@ exportPattern("^[[:alpha:]]+")
 
 useDynLib(Bclim)
 
-import(MASS)
-import(mclust)
+importFrom(MASS,kde2d)
+importFrom(mclust,Mclust)
 importFrom(statmod,rinvgauss)
+importFrom(graphics,filled.contour)
+
+S3method(plot,climate_histories)
+S3method(plot,layer_clouds)
+S3method(summary,climate_histories)
+
