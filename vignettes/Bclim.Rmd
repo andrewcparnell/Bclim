@@ -24,10 +24,14 @@ sluggan_pollen = read.table('http://mathsci.ucd.ie/~parnell_a/SlugganPollen.txt'
 sluggan_chrons = read.table('http://mathsci.ucd.ie/~parnell_a/Sluggan_2chrons.txt',nrow=2000)
 
 # Run the layer_clouds function
-layers = layer_clouds(sluggan_pollen)
+#layers = layer_clouds(sluggan_pollen)
+# Or cheat
+load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_layers.rda'))
 
 # Run the climate histories function
-histories = climate_histories(layers,sluggan_chrons,seq(0,14,by=0.1))
+#histories = climate_histories(layers,sluggan_chrons,seq(0,14,by=0.1))
+# Or cheat
+load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_histories.rda'))
 
 # Function plot.layer_clouds
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
