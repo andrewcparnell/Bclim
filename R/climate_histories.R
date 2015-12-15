@@ -215,7 +215,7 @@ v.interp.all = array(NA, dim = c(n.s , n.g-1+n, m))
 v.interp = array(NaN, dim = c(n.s, n.g-1, m))
 
 for (j in 1:m) {  #loop through clim dim
-  cat("Interpolation for climate dimension", j,":\n")
+  cat("Interpolation for climate dimension ", j,":\n",sep='')
 
   for (i in 1:n.s) { #loop through each sample
     if(i%%10==0) {

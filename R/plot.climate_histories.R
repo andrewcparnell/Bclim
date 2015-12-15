@@ -3,23 +3,23 @@ plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_r
 # First create base plot
 x_range = range(x$time_grid)
 if(!present_left) xrange = rev(xrange)
-y_range = range(x$layers$layer_clouds[,,dim])
+y_range = range(x$layer_clouds$layer_clouds[,,dim])
 
 plot(1,1,type="n",xlim=x_range,ylim=y_range,xaxt='n',yaxt='n',...)
 axis(side=1,at=pretty(x$time_grid,n=10))
-axis(side=2,at=pretty(x$layers$layer_clouds[,,dim],n=10))
+axis(side=2,at=pretty(x$layer_cloudss$layer_clouds[,,dim],n=10))
 grid()
 
 # Get some objects to make coding neater
-n_layers = x$layers$n_layers
-n_samples = x$layers$n_samples
+n_layers = x$layer_clouds$n_layers
+n_samples = x$layer_clouds$n_samples
 
 # Second add in layer clouds if required
 if(layer_clouds) {
   if(is.null(chron)) stop("A chronology is required for plotting layer clouds")
   for(i in 1:n_layers) {
     # Get current MDPs and a suitable number of chronologies to match
-    curr_MDP = x$layers$layer_clouds[,i,dim]
+    curr_MDP = x$layer_clouds$layer_clouds[,i,dim]
     curr_chron = sample(chron[,i],size=n_samples,replace=TRUE)
 
     if(var(curr_chron)>0) {
