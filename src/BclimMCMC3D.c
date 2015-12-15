@@ -198,8 +198,8 @@ for(j=0;j<*m;j++) {
      }
 }
 
-Rprintf("Optimising parameters:\n")
-
+Rprintf("Optimising parameters:\n");
+  
 // Start iterations loop
 double progress=0;
 for(iter=0;iter<*iterations;iter++) {
