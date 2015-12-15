@@ -4,6 +4,7 @@ climate_histories = function(layer_clouds,
                              n_mix=10,
                              mix_warnings=FALSE,
                              n_chron=2000,
+                             keep_parameters=TRUE,
                              control_mcmc=list(iterations=100000,
                                                burnin=20000,
                                                thinby=40,
@@ -306,6 +307,7 @@ for (j in 1:m) {  #loop through clim dim
 cat("Completed! \n")
 clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_var),'*'),3,scale_mean,'+')
 out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer_clouds)
+if(keep_parameters) out$parameters = list(cout,vout,phi1out,phi2out)
 class(out) = 'climate_histories'
 
 return(out)

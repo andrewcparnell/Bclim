@@ -13,6 +13,7 @@ time_grid,
 n_mix=10,
 mix_warnings=FALSE,
 n_chron=2000,
+keep_parameters=TRUE,
 control_mcmc=list(iterations=100000,
                   burnin=20000,
                   thinby=40,
@@ -50,6 +51,9 @@ Whether to display warnings related to the mixture algorithm
   \item{n_chron}{
 The number of chronologies to use
 }
+  \item{keep_parameters}{
+Whether to keep latent parameters or not. Useful for convergence checking so default is TRUE
+}
   \item{control_mcmc}{
 A list containing elements that control the MCMC, including the number of iterations, the size of the burn-in period, the amount to thinby, and how often for the algorithm to report its progress.
 }
@@ -76,6 +80,7 @@ A list object with the following elements
   \item{phi2 }{Values used for the IG prior on v for each climate dimension}
   \item{chron.loc }{A character string giving the location of the chronology file}
   \item{nchron }{The number of chronologies in the chronology file}
+  \item{parameters }{A list containing further latent parameter values for convergence checking (only if \code{keep_parameters} is TRUE)}
 }
 \references{
 Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time uncertainty and stochastic volatility. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64: 115–138.
