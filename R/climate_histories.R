@@ -22,6 +22,71 @@ climate_histories = function(layer_clouds,
                                                  phi2_dl_mean=rep(4.231,layer_clouds$n_dimensions),
                                                  phi2dl_sd=rep(0.271,layer_clouds$n_dimensions))) {
 
+################# USEFUL FUNCTIONS #################
+  
+NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
+  total.points = length(tb.points)
+  NIG.bridge = rep(NaN, nrow=total.points)
+  NIG.bridge[1] = c.start
+  NIG.bridge[total.points] = c.end
+  IG.increment = rep(NaN, total.points-2)
+  z = IG.sum
+  eps=1E-5
+  
+  l = 2
+  while(l < total.points){
+    if((tb.points[l]-tb.points[l-1])<eps) {
+      IG.increment[l-1] = 0
+    } else {
+      
+      q = rnorm(1)^2  # Generate chi-square random variate
+      
+      # Reparameterise
+      mu = (tb.points[total.points]-tb.points[l]) / (tb.points[l]-tb.points[l-1])
+      lambda = (delta^2 * (tb.points[total.points]-tb.points[l])^2) / z
+      
+      if(z==0) {
+        print(c(delta,IG.sum,tb.points,c.start,c.end))
+        stop("Problem in Inverse Gaussian Bridge - IG sum is zero")
+      }
+      
+      # Compute the roots of the chi-square random variate
+      s1 = mu + (mu^2*q)/(2*lambda) - (mu/(2*lambda)) * sqrt(4*mu*lambda*q + mu^2*q^2)
+      if(lambda < eps) { s1 = mu }
+      s2 = mu^2 / s1
+      
+      # Acceptance/rejection of root
+      s = ifelse(runif(1) < mu*(1+s1)/((1+mu)*(mu+s1)), s1, s2)
+      
+      IG.increment[l-1] = z / (1 + s)  # Compute the IG incrrement
+      
+      if(any(IG.increment<0, na.rm=TRUE)) stop("Inverse Gaussian bridge producing negative variances")
+    } # End of if statement
+    
+    # Rescale the sum of left-over distance of the IG bridge
+    z = z - IG.increment[l-1]
+    
+    #Compute the current value of the NIG bridge
+    NIG.bridge[l] = (c.start*z + c.end*(IG.sum-z)) / IG.sum + rnorm(1) * (IG.sum-z)*z / IG.sum
+    l = l + 1
+  }
+  return(list(IGB = c(IG.increment, (IG.sum - sum(IG.increment))), NIGB = t(NIG.bridge)))
+}
+  
+# Extrapolation function
+NIGextrap = function(curr.clim, curr.chron, tg.select, phi1, phi2, future=FALSE) {
+  t.diff = abs(diff(sort(c(tg.select, curr.chron))))
+  mu = phi1*t.diff # Re-parameterise on to the R version of the IG distribution
+  lambda = phi1*phi2*t.diff^2
+  v.out = statmod::rinvgauss(length(t.diff),mu,lambda)
+  if(future==TRUE) {
+    return(list(NIG = rev(cumsum(rev(rnorm(length(t.diff), mean=0, sd=sqrt(v.out))))) + curr.clim, IG=v.out))
+  } else {
+    return(list(NIG=cumsum(rnorm(length(t.diff), mean=0, sd=sqrt(v.out)))+ curr.clim, IG=v.out))
+  }
+  
+}  
+  
 ################# MIXTURE ESTIMATION #################
 
 # Calculate n.samp = number of samples, n = number of layers, m = number of climate dimensions
@@ -244,68 +309,5 @@ out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer
 class(out) = 'climate_histories'
 
 return(out)
-
-NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
-  total.points = length(tb.points)
-  NIG.bridge = rep(NaN, nrow=total.points)
-  NIG.bridge[1] = c.start
-  NIG.bridge[total.points] = c.end
-  IG.increment = rep(NaN, total.points-2)
-  z = IG.sum
-  eps=1E-5
-
-  l = 2
-  while(l < total.points){
-    if((tb.points[l]-tb.points[l-1])<eps) {
-      IG.increment[l-1] = 0
-    } else {
-
-      q = rnorm(1)^2  # Generate chi-square random variate
-
-      # Reparameterise
-      mu = (tb.points[total.points]-tb.points[l]) / (tb.points[l]-tb.points[l-1])
-      lambda = (delta^2 * (tb.points[total.points]-tb.points[l])^2) / z
-
-      if(z==0) {
-        print(c(delta,IG.sum,tb.points,c.start,c.end))
-        stop("Problem in Inverse Gaussian Bridge - IG sum is zero")
-      }
-
-      # Compute the roots of the chi-square random variate
-      s1 = mu + (mu^2*q)/(2*lambda) - (mu/(2*lambda)) * sqrt(4*mu*lambda*q + mu^2*q^2)
-      if(lambda < eps) { s1 = mu }
-      s2 = mu^2 / s1
-
-      # Acceptance/rejection of root
-      s = ifelse(runif(1) < mu*(1+s1)/((1+mu)*(mu+s1)), s1, s2)
-
-      IG.increment[l-1] = z / (1 + s)  # Compute the IG incrrement
-
-      if(any(IG.increment<0, na.rm=TRUE)) stop("Inverse Gaussian bridge producing negative variances")
-    } # End of if statement
-
-    # Rescale the sum of left-over distance of the IG bridge
-    z = z - IG.increment[l-1]
-
-    #Compute the current value of the NIG bridge
-    NIG.bridge[l] = (c.start*z + c.end*(IG.sum-z)) / IG.sum + rnorm(1) * (IG.sum-z)*z / IG.sum
-    l = l + 1
-  }
-  return(list(IGB = c(IG.increment, (IG.sum - sum(IG.increment))), NIGB = t(NIG.bridge)))
-}
-
-# Extrapolation function
-NIGextrap = function(curr.clim, curr.chron, tg.select, phi1, phi2, future=FALSE) {
-  t.diff = abs(diff(sort(c(tg.select, curr.chron))))
-  mu = phi1*t.diff # Re-parameterise on to the R version of the IG distribution
-  lambda = phi1*phi2*t.diff^2
-  v.out = statmod::rinvgauss(length(t.diff),mu,lambda)
-  if(future==TRUE) {
-    return(list(NIG = rev(cumsum(rev(rnorm(length(t.diff), mean=0, sd=sqrt(v.out))))) + curr.clim, IG=v.out))
-  } else {
-    return(list(NIG=cumsum(rnorm(length(t.diff), mean=0, sd=sqrt(v.out)))+ curr.clim, IG=v.out))
-  }
-
-}
 
 }
