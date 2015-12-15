@@ -198,10 +198,11 @@ for(j=0;j<*m;j++) {
      }
 }
 
+Rprintf("Optimising parameters:\n")
+
 // Start iterations loop
 double progress=0;
 for(iter=0;iter<*iterations;iter++) {
-
 
 	// Check if someone's pressed escape
 	R_CheckUserInterrupt();
@@ -210,7 +211,7 @@ for(iter=0;iter<*iterations;iter++) {
 	if(iter%*reportevery==0) {
 	    progress = (double) 100*iter/ *iterations;
         Rprintf("\r");
-        Rprintf("Optimising parameters: %3.2f %% completed",progress);
+        Rprintf("%3.2f%% completed",progress);
         //Rprintf("Completed: %i ",iter);
 	    Rprintf("\r");
 	    R_FlushConsole();
