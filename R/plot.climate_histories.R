@@ -2,7 +2,7 @@ plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_r
 
 # First create base plot
 x_range = range(x$time_grid)
-if(!present_left) xrange = rev(xrange)
+if(!present_left) x_range = rev(x_range)
 y_range = range(x$layer_clouds$layer_clouds[,,dim])
 
 plot(1,1,type="n",xlim=x_range,ylim=y_range,xaxt='n',yaxt='n',...)
