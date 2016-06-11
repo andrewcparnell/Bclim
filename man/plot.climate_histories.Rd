@@ -14,9 +14,9 @@ chron=NULL,
 climate_ribbon=TRUE,
 most_representative=1,
 conf=c(0.95,0.75,0.5),
-col_clouds = rgb(0,0,1,0.2),
-col_ribbon=rgb(1,0,0,0.4),
-col_representative=rgb(0,1,0),
+col_clouds = grDevices::rgb(0,0,1,0.2),
+col_ribbon = grDevices::rgb(1,0,0,0.4),
+col_representative = grDevices::rgb(0,1,0),
 present_left=TRUE,...)
 }
 \arguments{

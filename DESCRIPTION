@@ -4,7 +4,7 @@ Title: Bayesian Palaeoclimate Reconstruction from Pollen Data
 Version: 3.1.0
 Date: 2016-06-11
 Author: Andrew Parnell
-Maintainer: Andrew Parnell <andrew.parnell@ucd.ie>
+Maintainer: Andrew Parnell <Andrew.Parnell@ucd.ie>
 Description: Takes pollen and chronology data from lake cores and produces a Bayesian posterior distribution of palaeoclimate from that location after fitting a non-linear non-Gaussian state-space model. For more details see the paper Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time uncertainty and stochastic volatility. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64: 115–138. 
 Imports: MASS, mclust, graphics, statmod, ggplot2
 Suggests: Bchron, knitr
