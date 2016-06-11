@@ -59,8 +59,8 @@ if(layer_clouds) {
 if(climate_ribbon) {
   for(k in 1:length(conf)) {
     curr_hists = x$histories[,,dim]
-    clim_stats::quantile = apply(curr_hists,2,'stats::quantile',probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2))
-    graphics::polygon(c(x$time_grid,rev(x$time_grid)),c(clim_stats::quantile[1,],rev(clim_stats::quantile[2,])),col=col_ribbon,border=col_ribbon)
+    clim_quantile = apply(curr_hists,2,stats::quantile,probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2))
+    graphics::polygon(c(x$time_grid,rev(x$time_grid)),c(clim_quantile[1,],rev(clim_quantile[2,])),col=col_ribbon,border=col_ribbon)
   }
 }
 
