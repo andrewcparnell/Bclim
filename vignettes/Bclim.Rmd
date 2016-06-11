@@ -84,6 +84,7 @@ Roya_layers = layer_clouds(Roya_pollen)
 # Run the climate histories function - 
 Roya_histories = climate_histories(layer_clouds = Roya_layers,
                               chronology = Roya_chronologies,
+                              n_chron = 1000,
                               time_grid = seq(0,16,by=0.1))
 
 # Plot a single layer cloud if required - plot layer 50
@@ -92,20 +93,24 @@ plot(Roya_histories$layer_clouds,layer=50, dims=2:3, main='Layer 50',xlab='MTCO'
 
 # Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories, most_representative = 3, chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
+plot(Roya_histories, most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
 legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
-plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
+plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
 legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
+plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
 legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 # Summarise the histories if required
 summary(Roya_histories,dim=3)
 
 ```
+
+
+
+
 ```{r}
 # # Some test scripts and data to run the Sluggan moss data on Bclim
 # 

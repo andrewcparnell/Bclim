@@ -230,8 +230,8 @@ for(iter=0;iter<*iterations;iter++) {
         countchron += *n;
 
         // Store current z values
-		for(i=0;i<*n;i++) zstore[countz+i] = Z[i];
-		countz += *n;
+		    for(i=0;i<*n;i++) zstore[countz+i] = Z[i];
+		    countz += *n;
         
         // Store phi1 and phi2
         for(j=0;j<*m;j++) {

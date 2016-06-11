@@ -88,6 +88,18 @@ NIGextrap = function(curr.clim, curr.chron, tg.select, phi1, phi2, future=FALSE)
   
 }  
   
+################# CHECKS #################
+
+# Create output matrices
+remaining = (control_mcmc$iterations-control_mcmc$burnin)/control_mcmc$thinby
+if(remaining!=as.integer(remaining))
+  stop("Iterations minus burnin divided by thinby must be an integer")
+
+# Check that the number of chronologies is greater than the number of posterior
+# samples required
+if(remaining > n_chron)
+  stop("Iterations minus burnin divided by thinby must be greater than number of chronologies. Either reduce the number of iterations required or supply more chronologies.")
+
 ################# MIXTURE ESTIMATION #################
 
 # Calculate n.samp = number of samples, n = number of layers, m = number of climate dimensions
@@ -103,6 +115,7 @@ for(i in 1:n_dimensions) {
   scale_var[i] = median(diag(var(layer_clouds$layer_clouds[,,i])))
   MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
 }
+
 
 # Set up mixture components
 mean_mat = array(NA,dim=c(n_layers,n_dimensions,n_mix))
@@ -129,10 +142,6 @@ for(i in 1:n_layers) {
 
 ################# MCMC #################
 
-# Create output matrices
-remaining = (control_mcmc$iterations-control_mcmc$burnin)/control_mcmc$thinby
-if(remaining!=as.integer(remaining))
-  stop("Iterations minus burnin divided by thinby must be an integer")
 
 vout = rep(0,length=n_dimensions*(n_layers-1)*remaining)
 zout = rep(0,length=n_dimensions*n_layers*remaining)
