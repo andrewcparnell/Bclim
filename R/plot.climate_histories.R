@@ -1,4 +1,4 @@
-plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevies::rgb(0,0,1,0.2), col_ribbon=grDevies::rgb(1,0,0,0.4),col_representative=grDevies::rgb(0,1,0),present_left=TRUE,...) {
+plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevices::rgb(0,0,1,0.2), col_ribbon=grDevices::rgb(1,0,0,0.4),col_representative=grDevices::rgb(0,1,0),present_left=TRUE,...) {
 
 # First create base plot
 x_range = range(x$time_grid)
