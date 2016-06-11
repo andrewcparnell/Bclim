@@ -9,6 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=7, fig.align = 'center',
+                      warning=FALSE, message=FALSE)
+```
+
 ## Introduction
 
 This vignette contains the code and associated descriptions to re-create the plots given in the Parnell et al submitted paper _Joint palaeoclimate reconstruction from pollen data via forward models and climate histories_. It is not meant to be a completed vignette, and it is not a complete instruction manual yet. If you spot bugs or mistakes please post to the [GitHub repository](http://github.com/andrewcparnell/Bclim). Some of the code below takes a long time to run, so you can shortcut the steps by downloading the resulting files from [my website](http://mathsci.ucd.ie/~parnell_a/). The places where this is relevant are all given in the code below. 
@@ -36,7 +41,7 @@ library(Bclim)
 To create the plots for Roya we first need to create a chronology using the `Bchron` package before we can run `Bclim` on it.
 
 We run the `Bchron` step with:
-```{r}
+```{r, results='hide'}
 library(Bchron)
 
 # load in dates
@@ -59,16 +64,22 @@ Roya_chron = with(Roya_dates,
                               id=id, 
                               predictPositions=Roya_depths$V1,
                               thin = 4))
+```
 
+We can check convergence with:
+```{r}
 # Check convergence
 summary(Roya_chron,type='convergence') # Good
+```
 
+And plot the chronology with
+```{r}
 # Plot
 plot(Roya_chron,xlab='Age (cal BP)',ylab='Depth (cm)',main='Laguna de la Roya',las=1)
 ```
 
 We can now run Bclim with:
-```{r}
+```{r, results='hide'}
 # Load in the pollen data
 Roya_pollen = read.table(system.file("extdata", 
                                     "Roya_pollen.txt", 
@@ -84,13 +95,18 @@ Roya_layers = layer_clouds(Roya_pollen)
 # Run the climate histories function - 
 Roya_histories = climate_histories(layer_clouds = Roya_layers,
                               chronology = Roya_chronologies,
-                              n_chron = 1000,
                               time_grid = seq(0,16,by=0.1))
+```
 
+We can plot a single layer of the climate clouds:
+```{r}
 # Plot a single layer cloud if required - plot layer 50
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories$layer_clouds,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
+```
 
+Plot the climate histories:
+```{r}
 # Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories, most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
@@ -102,54 +118,42 @@ legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative his
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
 legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+```
 
+We can summarise the histories with e.g. (results not shown)
+```{r, results='hide'}
 # Summarise the histories if required
 summary(Roya_histories,dim=3)
-
 ```
 
-
-
-
+And finally create the plots of the first differences:
 ```{r}
-# # Some test scripts and data to run the Sluggan moss data on Bclim
-# 
-# # Load the package
-# library(Bclim)
-# 
-# # Load in the Sluggan data - pollen and chronologies
-# sluggan_pollen = read.table('http://mathsci.ucd.ie/~parnell_a/SlugganPollen.txt',header=TRUE)
-# sluggan_chrons = read.table('http://mathsci.ucd.ie/~parnell_a/Sluggan_2chrons.txt',nrow=2000)
-# 
-# # Run the layer_clouds function
-# #layers = layer_clouds(sluggan_pollen)
-# # Or cheat
-# load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_layers.rda'))
-# 
-# # Run the climate histories function
-# #histories = climate_histories(layers,sluggan_chrons,seq(0,14,by=0.1))
-# # Or cheat
-# load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_histories.rda'))
-# 
-# # Function plot.layer_clouds
-# par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-# plot(histories$layers,main='Layer 1',xlab='GDD5',ylab='MTCO',col=terrain.colors(30))
-# plot(histories$layers,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
-# 
-# # Function plot.climate_histories
-# par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-# plot(histories,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
-# legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
-# plot(histories,dim=2,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
-# legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
-# plot(histories,dim=3,most_representative = 3, chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='AET/PET',main='Sluggan Moss')
-# legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
-# 
-# # Function summary.climate_histories
-# summary(histories,dim=3)
+### Create the plot of first differences
+# This might one day become a function in Bclim
+
+# Somewhere to store the differences
+diffs = vector('list',length=3)
+clim_names = c('GDD5','MTCO','AET/PET')
+
+# Loop through each climate dimension
+for(i in 1:3) {
+  diffs[[i]] = -apply(Roya_histories$histories[,,i],1,'diff')
+}
+diff_means = lapply(diffs,'rowMeans')
+diff_sds = lapply(diffs,function(x) apply(x,1,'sd'))
+diff_snr = lapply(mapply("/",diff_means,diff_sds,SIMPLIFY = FALSE),'abs')
+df = data.frame(tg=rep(Roya_histories$time_grid[-1],3),
+                diff_means=unlist(diff_means),
+                diff_sds=unlist(diff_sds),
+                SNR=unlist(diff_snr),
+                clim_var=rep(clim_names,
+                             each=length(Roya_histories$time_grid)-1))
+df$clim_var = factor(df$clim_var,levels=clim_names,ordered=TRUE)
+
+# Create the plot using ggplot2
+library(ggplot2)
+limits = aes(ymax = diff_means + diff_sds, ymin= diff_means - diff_sds)
+p = ggplot(df,aes(x=tg,y=diff_means,colour=SNR)) + geom_linerange(limits) + geom_line(colour='black') +facet_grid(clim_var ~ .,scales='free_y')+ xlab('Age (k cal yrs BP)')+ylab('First difference') + ggtitle('Roya: centennial first difference means +/- 1 standard deviation')+scale_x_continuous(breaks=seq(0,16,by=1))+theme_bw() + geom_hline(aes(yintercept=0))+ scale_colour_gradientn(colours=rev(heat.colors(3)))
+print(p)
 ```
-
-
-
-
 
