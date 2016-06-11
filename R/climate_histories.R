@@ -237,7 +237,7 @@ for (j in 1:m) {  #loop through clim dim
 
     # If there are any chronology times which exactly match the time_grid then fill in those climates and variances as zero
     if(any(diff(time_grid.all)<eps)) {
-      curr.chron = curr.chron+eps  # shift the chronology by a little bit
+      curr.chron = sort(curr.chron+runif(length(curr.chron),-eps,eps))  # shift the chronology by a little bit
       time_grid.all = sort(c(curr.chron, time_grid))
     }
 
@@ -260,7 +260,8 @@ for (j in 1:m) {  #loop through clim dim
       t.select = time_grid[t.select.index]
 
       # Perform extrapolation
-      clim.temp = NIGextrap(curr.clim[length(curr.clim)], curr.chron[length(curr.clim)],
+      clim.temp = NIGextrap(curr.clim[length(curr.clim)], 
+                            curr.chron[length(curr.clim)],
                             t.select, phi1[i,j], phi2[i,j])
       clim.interp[i, t.select.index, j] = clim.temp$NIG
       v.interp.all[i, t.all.select.index-1, j] = cumsum(clim.temp$IG)
@@ -278,8 +279,11 @@ for (j in 1:m) {  #loop through clim dim
         t.select = time_grid[t.select.index]
 
         # Now interpolate using the NIGB code
-        clim.temp = NIGB(delta[i,j], curr.v[k], c(curr.chron[k],t.select,curr.chron[k+1]),
-                          curr.clim[k], curr.clim[k+1])
+        clim.temp = NIGB(delta[i,j], 
+                         curr.v[k], 
+                         c(curr.chron[k],t.select,curr.chron[k+1]), 
+                         curr.clim[k], 
+                         curr.clim[k+1])
 
         clim.interp[i,t.select.index,j] = clim.temp$NIGB[-c(1,length(clim.temp$NIGB))]
         v.interp.all[i,t.all.select.index,j] = clim.temp$IGB

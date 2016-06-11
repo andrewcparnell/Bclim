@@ -11,44 +11,137 @@ vignette: >
 
 ## Introduction
 
-Bclim is a package which currently doesn't have a completed vignette!
+This vignette contains the code and associated descriptions to re-create the plots given in the Parnell et al submitted paper _Joint palaeoclimate reconstruction from pollen data via forward models and climate histories_. It is not meant to be a completed vignette, and it is not a complete instruction manual yet. If you spot bugs or mistakes please post to the [GitHub repository](http://github.com/andrewcparnell/Bclim). Some of the code below takes a long time to run, so you can shortcut the steps by downloading the resulting files from [my website](http://mathsci.ucd.ie/~parnell_a/). The places where this is relevant are all given in the code below. 
 
+## Installation
+
+The stable version can be downloaded at the R command prompt with:
+```{r, eval=FALSE}
+install.packages('Bclim')
+```
+
+The latest version, which usually contains extra bug fixes, or experimental functions which might not work well yet, is available via:
+```{r, eval=FALSE}
+devtools::install_github('andrewcparnell/Bclim')
+```
+Note that for the above you need to have installed the `devtools` package.
+
+If the installation has worked correctly no error should be returned upon typing:
 ```{r}
-# Some test scripts and data to run the Sluggan moss data on Bclim
-
-# Load the package
 library(Bclim)
+```
 
-# Load in the Sluggan data - pollen and chronologies
-sluggan_pollen = read.table('http://mathsci.ucd.ie/~parnell_a/SlugganPollen.txt',header=TRUE)
-sluggan_chrons = read.table('http://mathsci.ucd.ie/~parnell_a/Sluggan_2chrons.txt',nrow=2000)
+## Roya
 
-# Run the layer_clouds function
-#layers = layer_clouds(sluggan_pollen)
-# Or cheat
-load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_layers.rda'))
+To create the plots for Roya we first need to create a chronology using the `Bchron` package before we can run `Bclim` on it.
 
-# Run the climate histories function
-#histories = climate_histories(layers,sluggan_chrons,seq(0,14,by=0.1))
-# Or cheat
-load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_histories.rda'))
+We run the `Bchron` step with:
+```{r}
+library(Bchron)
 
-# Function plot.layer_clouds
+# load in dates
+Roya_dates = read.table(system.file("extdata", 
+                                    "Roya.dat", 
+                                    package = "Bclim"), 
+                        header=TRUE)
+
+# Load in the pollen depths
+Roya_depths = read.table(system.file("extdata", 
+                                     "Roya_pollen_depths.txt", 
+                                     package = "Bclim"))
+
+# Run Bchron
+Roya_chron = with(Roya_dates,
+                  Bchronology(ages=Age, 
+                              ageSds=sd, 
+                              positions=Depth, 
+                              positionThickness=Thickness, 
+                              id=id, 
+                              predictPositions=Roya_depths$V1,
+                              thin = 4))
+
+# Check convergence
+summary(Roya_chron,type='convergence') # Good
+
+# Plot
+plot(Roya_chron,xlab='Age (cal BP)',ylab='Depth (cm)',main='Laguna de la Roya',las=1)
+```
+
+We can now run Bclim with:
+```{r}
+# Load in the pollen data
+Roya_pollen = read.table(system.file("extdata", 
+                                    "Roya_pollen.txt", 
+                                    package = "Bclim"), 
+                        header=TRUE)
+
+# Extract the chronologies - Bclim requires them in thousands of years
+Roya_chronologies = Roya_chron$thetaPredict/1000
+
+# Run the single layer climate clouds
+Roya_layers = layer_clouds(Roya_pollen)
+
+# Run the climate histories function - 
+Roya_histories = climate_histories(layer_clouds = Roya_layers,
+                              chronology = Roya_chronologies,
+                              time_grid = seq(0,16,by=0.1))
+
+# Plot a single layer cloud if required - plot layer 50
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(histories$layers,main='Layer 1',xlab='GDD5',ylab='MTCO',col=terrain.colors(30))
-plot(histories$layers,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
+plot(Roya_histories$layer_clouds,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
 
-# Function plot.climate_histories
+# Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(histories,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
-legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
-plot(histories,dim=2,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
-legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
-plot(histories,dim=3,most_representative = 3, chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='AET/PET',main='Sluggan Moss')
+plot(Roya_histories, most_representative = 3, chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
+legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+
+plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
 legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
-# Function summary.climate_histories
-summary(histories,dim=3)
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chrons,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
+legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+
+# Summarise the histories if required
+summary(Roya_histories,dim=3)
+
+```
+```{r}
+# # Some test scripts and data to run the Sluggan moss data on Bclim
+# 
+# # Load the package
+# library(Bclim)
+# 
+# # Load in the Sluggan data - pollen and chronologies
+# sluggan_pollen = read.table('http://mathsci.ucd.ie/~parnell_a/SlugganPollen.txt',header=TRUE)
+# sluggan_chrons = read.table('http://mathsci.ucd.ie/~parnell_a/Sluggan_2chrons.txt',nrow=2000)
+# 
+# # Run the layer_clouds function
+# #layers = layer_clouds(sluggan_pollen)
+# # Or cheat
+# load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_layers.rda'))
+# 
+# # Run the climate histories function
+# #histories = climate_histories(layers,sluggan_chrons,seq(0,14,by=0.1))
+# # Or cheat
+# load(url('http://mathsci.ucd.ie/~parnell_a/Sluggan_histories.rda'))
+# 
+# # Function plot.layer_clouds
+# par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+# plot(histories$layers,main='Layer 1',xlab='GDD5',ylab='MTCO',col=terrain.colors(30))
+# plot(histories$layers,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
+# 
+# # Function plot.climate_histories
+# par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+# plot(histories,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
+# legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
+# plot(histories,dim=2,chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='GDD5',main='Sluggan Moss')
+# legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative history'),pch=15,col=c('blue','red','green'))
+# plot(histories,dim=3,most_representative = 3, chron=sluggan_chrons,xlab='Age (k cal years BP)',ylab='AET/PET',main='Sluggan Moss')
+# legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+# 
+# # Function summary.climate_histories
+# summary(histories,dim=3)
 ```
 
 
