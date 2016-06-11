@@ -153,7 +153,15 @@ df$clim_var = factor(df$clim_var,levels=clim_names,ordered=TRUE)
 # Create the plot using ggplot2
 library(ggplot2)
 limits = aes(ymax = diff_means + diff_sds, ymin= diff_means - diff_sds)
-p = ggplot(df,aes(x=tg,y=diff_means,colour=SNR)) + geom_linerange(limits) + geom_line(colour='black') +facet_grid(clim_var ~ .,scales='free_y')+ xlab('Age (k cal yrs BP)')+ylab('First difference') + ggtitle('Roya: centennial first difference means +/- 1 standard deviation')+scale_x_continuous(breaks=seq(0,16,by=1))+theme_bw() + geom_hline(aes(yintercept=0))+ scale_colour_gradientn(colours=rev(heat.colors(3)))
+p = ggplot(df,aes(x=tg,y=diff_means,colour=SNR)) + 
+  geom_linerange(limits) + 
+  geom_line(colour='black') +
+  facet_grid(clim_var ~ .,scales='free_y')+ xlab('Age (k cal yrs BP)') + 
+  ylab('First difference') + 
+  ggtitle('Roya: centennial first difference means +/- 1 standard deviation') + 
+  scale_x_continuous(breaks=seq(0,16,by=1))+theme_bw() + 
+  geom_hline(aes(yintercept=0)) + 
+  scale_colour_gradientn(colours=rev(heat.colors(3)))
 print(p)
 ```
 

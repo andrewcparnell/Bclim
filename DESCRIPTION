@@ -1,12 +1,12 @@
 Package: Bclim
 Type: Package
 Title: Bayesian Palaeoclimate Reconstruction from Pollen Data
-Version: 3.0.0
-Date: 2015-12-09
+Version: 3.1.0
+Date: 2016-06-11
 Author: Andrew Parnell
 Maintainer: Andrew Parnell <andrew.parnell@ucd.ie>
-Description: FThis package takes pollen and chronology data from lake cores and produces a Bayesian posterior distribution of palaeoclimate from that location after fitting a non-linear non-Gaussian state-space model. For more details see the paper Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time uncertainty and stochastic volatility. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64: 115–138. 
-Imports: MASS, mclust, graphics, statmod
+Description: Takes pollen and chronology data from lake cores and produces a Bayesian posterior distribution of palaeoclimate from that location after fitting a non-linear non-Gaussian state-space model. For more details see the paper Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time uncertainty and stochastic volatility. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64: 115–138. 
+Imports: MASS, mclust, graphics, statmod, ggplot2
 Suggests: Bchron, knitr
 Encoding: UTF-8
 License: GPL (>=2)

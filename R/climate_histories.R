@@ -40,7 +40,7 @@ NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
       IG.increment[l-1] = 0
     } else {
       
-      q = rnorm(1)^2  # Generate chi-square random variate
+      q = stats::rnorm(1)^2  # Generate chi-square random stats::variate
       
       # Reparameterise
       mu = (tb.points[total.points]-tb.points[l]) / (tb.points[l]-tb.points[l-1])
@@ -51,24 +51,24 @@ NIGB = function(delta, IG.sum, tb.points, c.start, c.end){
         stop("Problem in Inverse Gaussian Bridge - IG sum is zero")
       }
       
-      # Compute the roots of the chi-square random variate
+      # Compute the roots of the chi-square random stats::variate
       s1 = mu + (mu^2*q)/(2*lambda) - (mu/(2*lambda)) * sqrt(4*mu*lambda*q + mu^2*q^2)
       if(lambda < eps) { s1 = mu }
       s2 = mu^2 / s1
       
       # Acceptance/rejection of root
-      s = ifelse(runif(1) < mu*(1+s1)/((1+mu)*(mu+s1)), s1, s2)
+      s = ifelse(stats::runif(1) < mu*(1+s1)/((1+mu)*(mu+s1)), s1, s2)
       
       IG.increment[l-1] = z / (1 + s)  # Compute the IG incrrement
       
-      if(any(IG.increment<0, na.rm=TRUE)) stop("Inverse Gaussian bridge producing negative variances")
+      if(any(IG.increment<0, na.rm=TRUE)) stop("Inverse Gaussian bridge producing negative stats::variances")
     } # End of if statement
     
     # Rescale the sum of left-over distance of the IG bridge
     z = z - IG.increment[l-1]
     
     #Compute the current value of the NIG bridge
-    NIG.bridge[l] = (c.start*z + c.end*(IG.sum-z)) / IG.sum + rnorm(1) * (IG.sum-z)*z / IG.sum
+    NIG.bridge[l] = (c.start*z + c.end*(IG.sum-z)) / IG.sum + stats::rnorm(1) * (IG.sum-z)*z / IG.sum
     l = l + 1
   }
   return(list(IGB = c(IG.increment, (IG.sum - sum(IG.increment))), NIGB = t(NIG.bridge)))
@@ -81,9 +81,9 @@ NIGextrap = function(curr.clim, curr.chron, tg.select, phi1, phi2, future=FALSE)
   lambda = phi1*phi2*t.diff^2
   v.out = statmod::rinvgauss(length(t.diff),mu,lambda)
   if(future==TRUE) {
-    return(list(NIG = rev(cumsum(rev(rnorm(length(t.diff), mean=0, sd=sqrt(v.out))))) + curr.clim, IG=v.out))
+    return(list(NIG = rev(cumsum(rev(stats::rnorm(length(t.diff), mean=0, sd=sqrt(v.out))))) + curr.clim, IG=v.out))
   } else {
-    return(list(NIG=cumsum(rnorm(length(t.diff), mean=0, sd=sqrt(v.out)))+ curr.clim, IG=v.out))
+    return(list(NIG=cumsum(stats::rnorm(length(t.diff), mean=0, sd=sqrt(v.out)))+ curr.clim, IG=v.out))
   }
   
 }  
@@ -108,12 +108,12 @@ n_layers = layer_clouds$n_layers
 n_dimensions = layer_clouds$n_dimensions
 
 scale_mean = rep(0,n_dimensions)
-scale_var = rep(1,n_dimensions)
+scale_stats::var = rep(1,n_dimensions)
 MDP = layer_clouds$layer_clouds
 for(i in 1:n_dimensions) {
   scale_mean[i] = mean(layer_clouds$layer_clouds[,,i])
-  scale_var[i] = median(diag(var(layer_clouds$layer_clouds[,,i])))
-  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
+  scale_stats::var[i] = stats::median(diag(stats::var(layer_clouds$layer_clouds[,,i])))
+  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_stats::var[i])
 }
 
 
@@ -155,7 +155,7 @@ Bclimprec = prec_mat[,1,]
 # Write out the chronologies to a temporary file
 chron_loc = paste0(getwd(),'/chron.txt')
 if(any(chronology>1000)) warning("Ensure chronologies are provided in thousands of years.")
-write.table(chronology[1:n_chron,],file=chron_loc,row.names=FALSE,col.names=FALSE,quote=FALSE)
+utils::write.table(chronology[1:n_chron,],file=chron_loc,row.names=FALSE,col.names=FALSE,quote=FALSE)
 
 # Run C code
 out = .C("BclimMCMC3D",
@@ -244,9 +244,9 @@ for (j in 1:m) {  #loop through clim dim
     curr.chron = chron[i,] # length n
     time_grid.all = sort(c(curr.chron, time_grid)) # length n + n.g
 
-    # If there are any chronology times which exactly match the time_grid then fill in those climates and variances as zero
+    # If there are any chronology times which exactly match the time_grid then fill in those climates and stats::variances as zero
     if(any(diff(time_grid.all)<eps)) {
-      curr.chron = sort(curr.chron+runif(length(curr.chron),-eps,eps))  # shift the chronology by a little bit
+      curr.chron = sort(curr.chron+stats::runif(length(curr.chron),-eps,eps))  # shift the chronology by a little bit
       time_grid.all = sort(c(curr.chron, time_grid))
     }
 
@@ -311,14 +311,14 @@ for (j in 1:m) {  #loop through clim dim
       v.interp[i,l,j] = sum(v.interp.all[i, time_grid.select.lower[l]:time_grid.select.upper[l], j])
     }
 
-    if(any(is.na(clim.interp[i,,j]))) browser()# stop("Some interpolated climates have been given NAs")
-    if(any(is.na(v.interp[i,,j]))) browser()# stop("Some interpolated v values have been given NAs")
+    if(any(is.na(clim.interp[i,,j]))) stop("Some interpolated climates have been given NAs")
+    if(any(is.na(v.interp[i,,j]))) stop("Some interpolated v values have been given NAs")
 
   } #end of sample loops
 } #end climate dim loop
 
 cat("Completed! \n")
-clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_var),'*'),3,scale_mean,'+')
+clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_stats::var),'*'),3,scale_mean,'+')
 out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer_clouds)
 if(keep_parameters) out$parameters = list(cout,vout,phi1out,phi2out)
 class(out) = 'climate_histories'

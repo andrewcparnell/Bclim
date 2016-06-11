@@ -2,10 +2,14 @@ exportPattern("^[[:alpha:]]+")
 
 useDynLib(Bclim)
 
-importFrom(MASS,kde2d)
-importFrom(mclust,Mclust,mclustBIC)
-importFrom(statmod,rinvgauss)
-importFrom(graphics,filled.contour)
+importFrom("MASS","kde2d")
+importFrom("mclust","Mclust","mclustBIC")
+importFrom("statmod","rinvgauss")
+importFrom("graphics","filled.contour")
+importFrom("grDevices", "contourLines", "rgb")
+importFrom("graphics", "axis", "grid", "lines", "plot", "polygon")
+importFrom("stats", "median", "quantile", "rnorm", "runif", "var")
+importFrom("utils", "write.table")
 
 S3method(plot,climate_histories)
 S3method(plot,layer_clouds)

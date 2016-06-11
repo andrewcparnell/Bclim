@@ -61,7 +61,7 @@ MDP = rep(0,n_samples*nslices*3)
 
 for(i in 1:nslices) {
   Firstsamp = sample(1:175616, n_samples, replace = TRUE, prob = post[i,])
-  jitter = cbind(runif(n_samples,-1,1),runif(n_samples,-1,1),runif(n_samples,-1,1))*cbind(rep(72.53,n_samples),rep(.7,n_samples),rep(10.206,n_samples))
+  jitter = cbind(stats::runif(n_samples,-1,1),stats::runif(n_samples,-1,1),stats::runif(n_samples,-1,1))*cbind(rep(72.53,n_samples),rep(.7,n_samples),rep(10.206,n_samples))
 
   jit_locations = Climate[Firstsamp,]+jitter
   MDP[(i-1)*n_samples + (1:n_samples)] = jit_locations[,1]

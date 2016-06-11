@@ -1,14 +1,14 @@
-plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = rgb(0,0,1,0.2), col_ribbon=rgb(1,0,0,0.4),col_representative=rgb(0,1,0),present_left=TRUE,...) {
+plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevies::rgb(0,0,1,0.2), col_ribbon=grDevies::rgb(1,0,0,0.4),col_representative=grDevies::rgb(0,1,0),present_left=TRUE,...) {
 
 # First create base plot
 x_range = range(x$time_grid)
 if(!present_left) x_range = rev(x_range)
 y_range = range(x$layer_clouds$layer_clouds[,,dim])
 
-plot(1,1,type="n",xlim=x_range,ylim=y_range,xaxt='n',yaxt='n',...)
-axis(side=1,at=pretty(x$time_grid,n=10))
-axis(side=2,at=pretty(x$layer_cloudss$layer_clouds[,,dim],n=10))
-grid()
+graphics::plot(1,1,type="n",xlim=x_range,ylim=y_range,xaxt='n',yaxt='n',...)
+graphics::axis(side=1,at=pretty(x$time_grid,n=10))
+graphics::axis(side=2,at=pretty(x$layer_cloudss$layer_clouds[,,dim],n=10))
+graphics::grid()
 
 # Get some objects to make coding neater
 n_layers = x$layer_clouds$n_layers
@@ -22,7 +22,7 @@ if(layer_clouds) {
     curr_MDP = x$layer_clouds$layer_clouds[,i,dim]
     curr_chron = sample(chron[,i],size=n_samples,replace=TRUE)
 
-    if(var(curr_chron)>0) {
+    if(stats::var(curr_chron)>0) {
       dens = MASS::kde2d(curr_chron,curr_MDP)
 
       # Standardise and find 95% limit
@@ -38,15 +38,15 @@ if(layer_clouds) {
           prop = sum(dens$z[dens$z>limits])
         }
 
-        con_lines = contourLines(dens$x,dens$y,dens$z,levels=limits)
-        for(j in 1:length(con_lines)) polygon(con_lines[[j]]$x,con_lines[[j]]$y,col=col_clouds,border=col_clouds)
+        con_lines = grDevices::contourLines(dens$x,dens$y,dens$z,levels=limits)
+        for(j in 1:length(con_lines)) graphics::polygon(con_lines[[j]]$x,con_lines[[j]]$y,col=col_clouds,border=col_clouds)
       # End of loop through confidence levels
       }
     # End of if statement for variance of chronology
     } else {
       # If there's no variance so it's a vertical stripe
       for(k in 1:length(conf)) {
-        lines(c(curr_chron[1],curr_chron[1]),quantile(curr_MDP,probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2)),col=col_clouds)
+        graphics::lines(c(curr_chron[1],curr_chron[1]),stats::quantile(curr_MDP,probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2)),col=col_clouds)
       }
     # End of if statement for stripe line
     }
@@ -59,8 +59,8 @@ if(layer_clouds) {
 if(climate_ribbon) {
   for(k in 1:length(conf)) {
     curr_hists = x$histories[,,dim]
-    clim_quantile = apply(curr_hists,2,'quantile',probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2))
-    polygon(c(x$time_grid,rev(x$time_grid)),c(clim_quantile[1,],rev(clim_quantile[2,])),col=col_ribbon,border=col_ribbon)
+    clim_stats::quantile = apply(curr_hists,2,'stats::quantile',probs=c((1-conf[k])/2,conf[k]+(1-conf[k])/2))
+    graphics::polygon(c(x$time_grid,rev(x$time_grid)),c(clim_stats::quantile[1,],rev(clim_stats::quantile[2,])),col=col_ribbon,border=col_ribbon)
   }
 }
 
@@ -69,7 +69,7 @@ if(most_representative>0) {
   if(most_representative%%2==0) stop("For legal reasons number of most representative lines must be odd")
   # Function to create the most representative line
   rep_line = function(z,num_lines) {
-    med = apply(z,2,median)
+    med = apply(z,2,stats::median)
     diffs = rowSums(sweep(z,2,med,'-')^2)
     middle_val = round(length(diffs)/2,0)
     choose_vals = middle_val:(middle_val+num_lines-1)-(num_lines-1)/2
@@ -77,7 +77,7 @@ if(most_representative>0) {
   }
   plot_lines = matrix(rep_line(x$histories[,,dim],num_lines=most_representative),nrow=most_representative)
   for(i in 1:most_representative) {
-    lines(x$time_grid,plot_lines[i,],col=col_representative,lwd=2)
+    graphics::lines(x$time_grid,plot_lines[i,],col=col_representative,lwd=2)
   }
 }
 
