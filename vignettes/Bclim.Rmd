@@ -81,9 +81,9 @@ plot(Roya_chron,xlab='Age (cal BP)',ylab='Depth (cm)',main='Laguna de la Roya',l
 We can now run Bclim with:
 ```{r, results='hide'}
 # Load in the pollen data
-Roya_pollen = read.table(system.file("extdata", 
-                                    "Roya_pollen.txt", 
-                                    package = "Bclim"), 
+Roya_pollen = read.table(system.file("extdata",
+                                    "Roya_pollen.txt",
+                                    package = "Bclim"),
                         header=TRUE)
 
 # Extract the chronologies - Bclim requires them in thousands of years
