@@ -108,12 +108,12 @@ n_layers = layer_clouds$n_layers
 n_dimensions = layer_clouds$n_dimensions
 
 scale_mean = rep(0,n_dimensions)
-scale_stats::var = rep(1,n_dimensions)
+scale_var = rep(1,n_dimensions)
 MDP = layer_clouds$layer_clouds
 for(i in 1:n_dimensions) {
   scale_mean[i] = mean(layer_clouds$layer_clouds[,,i])
-  scale_stats::var[i] = stats::median(diag(stats::var(layer_clouds$layer_clouds[,,i])))
-  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_stats::var[i])
+  scale_var[i] = stats::median(diag(stats::var(layer_clouds$layer_clouds[,,i])))
+  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
 }
 
 
@@ -318,7 +318,7 @@ for (j in 1:m) {  #loop through clim dim
 } #end climate dim loop
 
 cat("Completed! \n")
-clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_stats::var),'*'),3,scale_mean,'+')
+clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_var),'*'),3,scale_mean,'+')
 out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer_clouds)
 if(keep_parameters) out$parameters = list(cout,vout,phi1out,phi2out)
 class(out) = 'climate_histories'
