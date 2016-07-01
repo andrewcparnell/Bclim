@@ -100,6 +100,10 @@ if(remaining!=as.integer(remaining))
 if(remaining > n_chron)
   stop("Iterations minus burnin divided by thinby must be greater than number of chronologies. Either reduce the number of iterations required or supply more chronologies.")
 
+# Check that the number of depths in the pollen file is the same as the
+# number of depths in the chronologies file
+if(layer_clouds$n_layers!=ncol(chronology)) stop("Number of pollen depths not equal to number of chronology depths")
+
 ################# MIXTURE ESTIMATION #################
 
 # Calculate n.samp = number of samples, n = number of layers, m = number of climate dimensions

@@ -1,13 +1,30 @@
 plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevices::rgb(0,0,1,0.2), col_ribbon=grDevices::rgb(1,0,0,0.4),col_representative=grDevices::rgb(0,1,0),present_left=TRUE,...) {
 
+# Get extra arguments if provided
+ex = list(...)
+
+clim_names = dimnames(x$layer_clouds$layer_clouds)[[3]]
+if(is.null(ex$xlab)) ex$xlab = 'Age (k cal years BP)'
+if(is.null(ex$ylab)) ex$ylab = clim_names[dim]
+
 # First create base plot
 x_range = range(x$time_grid)
 if(!present_left) x_range = rev(x_range)
 y_range = range(x$layer_clouds$layer_clouds[,,dim])
 
-graphics::plot(1,1,type="n",xlim=x_range,ylim=y_range,xaxt='n',yaxt='n',...)
+if(is.null(ex$xlim)) ex$xlim = x_range
+if(is.null(ex$ylim)) ex$ylim = y_range
+ex$xaxt = 'n'
+ex$yaxt = 'n'
+ex$x = ex$y = 1
+ex$type = 'n'
+if(is.null(ex$las)) ex$las = 1
+
+args = utils::modifyList(ex, list(...))
+do.call("plot", args)
+
 graphics::axis(side=1,at=pretty(x$time_grid,n=10))
-graphics::axis(side=2,at=pretty(x$layer_cloudss$layer_clouds[,,dim],n=10))
+graphics::axis(side=2,at=pretty(x$layer_clouds$layer_clouds[,,dim],n=10), las = ex$las)
 graphics::grid()
 
 # Get some objects to make coding neater
