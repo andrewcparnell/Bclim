@@ -110,14 +110,14 @@ Plot the climate histories:
 # Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories, most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
-legend('topleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('topleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
-legend('bottomleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('bottomleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
-legend('bottomleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('bottomleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 ```
 
 We can summarise the histories with e.g. (results not shown)
