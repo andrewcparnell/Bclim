@@ -37,13 +37,37 @@ if(layer_clouds) {
   for(i in 1:n_layers) {
     # Get current MDPs and a suitable number of chronologies to match
     curr_MDP = x$layer_clouds$layer_clouds[,i,dim]
-    curr_chron = sample(chron[,i],size=n_samples,replace=TRUE)
-
+    if(n_samples>nrow(chron)) {
+      curr_chron = sample(chron[,i],size=n_samples,replace=TRUE)
+    } else {
+      curr_chron = chron[1:n_samples,i]
+    }
+    
     if(stats::var(curr_chron)>0) {
       dens = MASS::kde2d(curr_chron,curr_MDP)
-
+      
       # Standardise and find 95% limit
       dens$z = dens$z/sum(dens$z)
+      
+      # Turn dens into a vector and find the highest values
+      de = as.vector(dens$z)
+      do = order(de)
+      cu = cumsum(de[do])
+      
+      for(k in 1:length(conf)) {
+        # Find which ones are above the threshold
+        good_cu = which(cu>1-conf[k])
+        good_clim_vec = sort((1:length(de))[do][good_cu])
+        
+        good_clim = 1*matrix((1:length(de)) %in% good_clim_vec, 
+                           ncol=ncol(dens$z), 
+                           nrow=nrow(dens$z))
+        curr_dens = dens
+        curr_dens$z = good_clim
+        cont = grDevices::contourLines(curr_dens, nlevels = 1)
+        graphics::polygon(cont[[1]]$x,cont[[1]]$y,col=col_clouds,border=col_clouds)
+      }
+      
       limits_diff = (max(dens$z)-min(dens$z))/100
 
       # Loop through confidence levels to plot
@@ -54,11 +78,8 @@ if(layer_clouds) {
           limits = limits+limits_diff
           prop = sum(dens$z[dens$z>limits])
         }
-
-        con_lines = grDevices::contourLines(dens$x,dens$y,dens$z,levels=limits)
-        for(j in 1:length(con_lines)) graphics::polygon(con_lines[[j]]$x,con_lines[[j]]$y,col=col_clouds,border=col_clouds)
-      # End of loop through confidence levels
       }
+      
     # End of if statement for variance of chronology
     } else {
       # If there's no variance so it's a vertical stripe
