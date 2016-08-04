@@ -12,6 +12,6 @@ importFrom("stats", "median", "quantile", "rnorm", "runif", "var")
 importFrom("utils", "write.table")
 
 S3method(plot,climate_histories)
-S3method(plot,layer_clouds)
+S3method(plot,slice_clouds)
 S3method(summary,climate_histories)
 
