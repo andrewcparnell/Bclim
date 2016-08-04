@@ -1,4 +1,4 @@
-climate_histories = function(layer_clouds,
+climate_histories = function(slice_clouds,
                              chronology,
                              time_grid,
                              n_mix=10,
@@ -12,16 +12,16 @@ climate_histories = function(layer_clouds,
                              control_chains=list(v_mh_sd=2,
                                                  phi1_mh_sd=1,
                                                  phi2_mh_sd=10,
-                                                 v_start=statmod::rinvgauss(layer_clouds$n_layers-1,2,1),
+                                                 v_start=statmod::rinvgauss(slice_clouds$n_slices-1,2,1),
                                                  Z_start=sample(1:n_mix,
-                                                                layer_clouds$n_layers,
+                                                                slice_clouds$n_slices,
                                                                replace=TRUE),
-                                                 phi1_start=rep(3,layer_clouds$n_dimensions),
-                                                 phi2_start=rep(20,layer_clouds$n_dimensions)),
-                             control_priors=list(phi1_dl_mean=rep(1.275,layer_clouds$n_dimensions),
-                                                 phi1_dl_sd=rep(0.076,layer_clouds$n_dimensions),
-                                                 phi2_dl_mean=rep(4.231,layer_clouds$n_dimensions),
-                                                 phi2dl_sd=rep(0.271,layer_clouds$n_dimensions))) {
+                                                 phi1_start=rep(3,slice_clouds$n_dimensions),
+                                                 phi2_start=rep(20,slice_clouds$n_dimensions)),
+                             control_priors=list(phi1_dl_mean=rep(1.275,slice_clouds$n_dimensions),
+                                                 phi1_dl_sd=rep(0.076,slice_clouds$n_dimensions),
+                                                 phi2_dl_mean=rep(4.231,slice_clouds$n_dimensions),
+                                                 phi2dl_sd=rep(0.271,slice_clouds$n_dimensions))) {
 
 ################# USEFUL FUNCTIONS #################
   
@@ -102,55 +102,55 @@ if(remaining > n_chron)
 
 # Check that the number of depths in the pollen file is the same as the
 # number of depths in the chronologies file
-if(layer_clouds$n_layers!=ncol(chronology)) stop("Number of pollen depths not equal to number of chronology depths")
+if(slice_clouds$n_slices!=ncol(chronology)) stop("Number of pollen depths not equal to number of chronology depths")
 
 ################# MIXTURE ESTIMATION #################
 
-# Calculate n.samp = number of samples, n = number of layers, m = number of climate dimensions
-n_samples = layer_clouds$n_samples
-n_layers = layer_clouds$n_layers
-n_dimensions = layer_clouds$n_dimensions
+# Calculate n.samp = number of samples, n = number of slices, m = number of climate dimensions
+n_samples = slice_clouds$n_samples
+n_slices = slice_clouds$n_slices
+n_dimensions = slice_clouds$n_dimensions
 
 scale_mean = rep(0,n_dimensions)
 scale_var = rep(1,n_dimensions)
-MDP = layer_clouds$layer_clouds
+MDP = slice_clouds$slice_clouds
 for(i in 1:n_dimensions) {
-  scale_mean[i] = mean(layer_clouds$layer_clouds[,,i])
-  scale_var[i] = stats::median(diag(stats::var(layer_clouds$layer_clouds[,,i])))
-  MDP[,,i] = (layer_clouds$layer_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
+  scale_mean[i] = mean(slice_clouds$slice_clouds[,,i])
+  scale_var[i] = stats::median(diag(stats::var(slice_clouds$slice_clouds[,,i])))
+  MDP[,,i] = (slice_clouds$slice_clouds[,,i]-scale_mean[i])/sqrt(scale_var[i])
 }
 
 
 # Set up mixture components
-mean_mat = array(NA,dim=c(n_layers,n_dimensions,n_mix))
-prec_mat = array(NA,dim=c(n_layers,n_dimensions,n_mix))
-prop_mat = matrix(NA,nrow=n_layers,ncol=n_mix)
+mean_mat = array(NA,dim=c(n_slices,n_dimensions,n_mix))
+prec_mat = array(NA,dim=c(n_slices,n_dimensions,n_mix))
+prop_mat = matrix(NA,nrow=n_slices,ncol=n_mix)
 
 ans.all = list()
 cat('Mixture estimation:\n')
-for(i in 1:n_layers) {
+for(i in 1:n_slices) {
   cat("\r")
-  cat(format(round(100*i/n_layers,2), nsmall = 2),"% completed",sep='')
+  cat(format(round(100*i/n_slices,2), nsmall = 2),"% completed",sep='')
   ans.all[[i]] = mclust::Mclust(MDP[,i,],G=n_mix,modelNames="EII",warn=mix_warnings)
 }
 cat('\n')
 
-for(i in 1:n_layers) {
+for(i in 1:n_slices) {
   mean_mat[i,,] = ans.all[[i]]$parameters$mean
   for(g in 1:n_mix) {
     prec_mat[i,,g] = 1/diag(ans.all[[i]]$parameters$variance$sigma[,,g])
   }
   prop_mat[i,] = ans.all[[i]]$parameters$pro
-  # End of loop through n layers
+  # End of loop through n slices
 }
 
 ################# MCMC #################
 
 
-vout = rep(0,length=n_dimensions*(n_layers-1)*remaining)
-zout = rep(0,length=n_dimensions*n_layers*remaining)
-chronout = rep(0,length=n_layers*remaining)
-cout = rep(0,length=n_dimensions*(n_layers)*remaining)
+vout = rep(0,length=n_dimensions*(n_slices-1)*remaining)
+zout = rep(0,length=n_dimensions*n_slices*remaining)
+chronout = rep(0,length=n_slices*remaining)
+cout = rep(0,length=n_dimensions*(n_slices)*remaining)
 phi1out = phi2out = rep(0,length=n_dimensions*remaining)
 
 # Re-dim the precisions matrix
@@ -164,7 +164,7 @@ utils::write.table(chronology[1:n_chron,],file=chron_loc,row.names=FALSE,col.nam
 # Run C code
 out = .C("BclimMCMC3D",
           as.integer(n_mix),
-          as.integer(n_layers),
+          as.integer(n_slices),
           as.integer(n_dimensions),
           as.integer(n_chron),
           as.double(prop_mat),
@@ -194,16 +194,16 @@ out = .C("BclimMCMC3D",
           as.double(control_chains$phi2_mh_sd)
 )
 
-vout  = array(NA,dim=c(remaining,n_layers-1,n_dimensions))
-cout  = array(NA,dim=c(remaining,n_layers,n_dimensions))
+vout  = array(NA,dim=c(remaining,n_slices-1,n_dimensions))
+cout  = array(NA,dim=c(remaining,n_slices,n_dimensions))
 for(i in 1:remaining) {
   for(j in 1:n_dimensions) {
-    vout[i,,j] = out[[18]][seq(1,n_layers-1)+(j-1)*(n_layers-1)+(i-1)*(n_layers-1)*n_dimensions]
-    cout[i,,j] = out[[21]][seq(1,n_layers)+(j-1)*(n_layers)+(i-1)*(n_layers)*n_dimensions]
+    vout[i,,j] = out[[18]][seq(1,n_slices-1)+(j-1)*(n_slices-1)+(i-1)*(n_slices-1)*n_dimensions]
+    cout[i,,j] = out[[21]][seq(1,n_slices)+(j-1)*(n_slices)+(i-1)*(n_slices)*n_dimensions]
   }
 }
-chronout = matrix(out[[20]],ncol=n_layers,nrow=remaining,byrow=TRUE)
-zout = matrix(out[[19]],ncol=n_layers,nrow=remaining,byrow=TRUE)
+chronout = matrix(out[[20]],ncol=n_slices,nrow=remaining,byrow=TRUE)
+zout = matrix(out[[19]],ncol=n_slices,nrow=remaining,byrow=TRUE)
 phi1out = matrix(out[[22]],ncol=n_dimensions,nrow=remaining,byrow=TRUE)
 phi2out = matrix(out[[23]],ncol=n_dimensions,nrow=remaining,byrow=TRUE)
 
@@ -323,7 +323,7 @@ for (j in 1:m) {  #loop through clim dim
 
 cat("Completed! \n")
 clim.interp.resc = sweep(sweep(clim.interp,3,sqrt(scale_var),'*'),3,scale_mean,'+')
-out = list(histories = clim.interp.resc, time_grid=time_grid, layer_clouds=layer_clouds)
+out = list(histories = clim.interp.resc, time_grid=time_grid, slice_clouds=slice_clouds)
 if(keep_parameters) out$parameters = list(cout,vout,phi1out,phi2out)
 class(out) = 'climate_histories'
 

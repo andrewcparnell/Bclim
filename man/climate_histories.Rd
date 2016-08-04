@@ -4,10 +4,10 @@
 Create Bclim climate_histories
 }
 \description{
-Runs a number of algorithms to create climate histories for a given set of layer clouds (from \code{\link{layer_clouds}} and a set of chronologies
+Runs a number of algorithms to create climate histories for a given set of slice clouds (from \code{\link{slice_clouds}} and a set of chronologies
 }
 \usage{
-climate_histories(layer_clouds,
+climate_histories(slice_clouds,
 chronology,
 time_grid,
 n_mix=10,
@@ -21,20 +21,20 @@ control_mcmc=list(iterations=100000,
 control_chains=list(v_mh_sd=2,
                     phi1_mh_sd=1,
                     phi2_mh_sd=10,
-                    v_start=statmod::rinvgauss(layer_clouds$n_layers-1,2,1),
+                    v_start=statmod::rinvgauss(slice_clouds$n_slices-1,2,1),
                     Z_start=sample(1:n_mix,
-                                   layer_clouds$n_layers,
+                                   slice_clouds$n_slices,
                                    replace=TRUE),
-                    phi1_start=rep(3,layer_clouds$n_dimensions),
-                    phi2_start=rep(20,layer_clouds$n_dimensions)),
-control_priors=list(phi1_dl_mean=rep(1.275,layer_clouds$n_dimensions),
-                    phi1_dl_sd=rep(0.076,layer_clouds$n_dimensions),
-                    phi2_dl_mean=rep(4.231,layer_clouds$n_dimensions),
-                    phi2dl_sd=rep(0.271,layer_clouds$n_dimensions)))
+                    phi1_start=rep(3,slice_clouds$n_dimensions),
+                    phi2_start=rep(20,slice_clouds$n_dimensions)),
+control_priors=list(phi1_dl_mean=rep(1.275,slice_clouds$n_dimensions),
+                    phi1_dl_sd=rep(0.076,slice_clouds$n_dimensions),
+                    phi2_dl_mean=rep(4.231,slice_clouds$n_dimensions),
+                    phi2dl_sd=rep(0.271,slice_clouds$n_dimensions)))
 }
 \arguments{
-  \item{layer_clouds}{
-An object of class \code{layer_clouds} obtained from \code{\link{layer_clouds}}
+  \item{slice_clouds}{
+An object of class \code{slice_clouds} obtained from \code{\link{slice_clouds}}
 }
   \item{chronology}{
 A set of chronologies given as a matrix. These should be provided in thousands of years before present. See details below
@@ -65,9 +65,9 @@ A list containing the prior parameters for the volatilities, given by phi1 and p
 }
 }
 \details{
-This function takes the layer_clouds produced by \code{\link{layer_clouds}} uses a set of algorithms to produce cliamte histories on the provided time grid. The full details are in the paper referenced below. The options listed above allow quite a detailed level of control over the behaviour of the algorithm, and convergence should be checked using suitable means (see e.g. the R package boa or coda).
+This function takes the slice_clouds produced by \code{\link{slice_clouds}} uses a set of algorithms to produce cliamte histories on the provided time grid. The full details are in the paper referenced below. The options listed above allow quite a detailed level of control over the behaviour of the algorithm, and convergence should be checked using suitable means (see e.g. the R package boa or coda).
 
-One of the key inputs to this function is a chronology. This should be a matrix of n_chron by n_layers containing sample chronologies as produced by, e.g. the R package Bchron. These are used by the \code{climate_histories} function to take account of chronological uncertainty. In the (unlikely) event that there is no chronological uncertainty, the rows of the chronologies can be identical.
+One of the key inputs to this function is a chronology. This should be a matrix of n_chron by n_slices containing sample chronologies as produced by, e.g. the R package Bchron. These are used by the \code{climate_histories} function to take account of chronological uncertainty. In the (unlikely) event that there is no chronological uncertainty, the rows of the chronologies can be identical.
 
 }
 \value{
@@ -90,7 +90,7 @@ Andrew Parnell <andrew.parnell@ucd.ie> and Thinh Doan
 }
 
 \seealso{
-\code{\link{layer_clouds}} for producing the input for this function. See \code{\link{plot.climate_histories}} and  \code{\link{summary.climate_histories}} for plotting and summary details
+\code{\link{slice_clouds}} for producing the input for this function. See \code{\link{plot.climate_histories}} and  \code{\link{summary.climate_histories}} for plotting and summary details
 
 For examples why not see the wonderful Bclim vignette (available at https://cran.r-project.org/web/packages/Bclim/index.html) and the authors personal webpage (http://mathsci.ucd.ie/~parnell_a/Bclim.html)?
 }

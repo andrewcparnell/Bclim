@@ -1,23 +1,23 @@
-\name{plot.layer_clouds}
-\alias{plot.layer_clouds}
+\name{plot.slice_clouds}
+\alias{plot.slice_clouds}
 \title{
-Plots of Bclim layer clouds
+Plots of Bclim slice clouds
 }
 \description{
-Create bivariate climate plots of individual layers
+Create bivariate climate plots of individual slices
 }
 \usage{
-\method{plot}{layer_clouds}(x,
-layer = 1,
+\method{plot}{slice_clouds}(x,
+slice = 1,
 dims = 1:2,
 n = 50,...)
 }
 \arguments{
   \item{x}{
-The output of a run from \code{\link{layer_clouds}}
+The output of a run from \code{\link{slice_clouds}}
 }
-  \item{layer}{
-The chosen layer to plot
+  \item{slice}{
+The chosen slice to plot
 }
   \item{dims}{
 A vector of length 2. dim=1 corresponds to GDD5, dim=2 to MTCO, and dim=3 to AET/PET
@@ -39,7 +39,7 @@ No output, just a plot
 Andrew Parnell <andrew.parnell@ucd.ie>
 }
 \seealso{
-The main Bclim functions are \code{\link{layer_clouds}} and \code{\link{climate_histories}}
+The main Bclim functions are \code{\link{slice_clouds}} and \code{\link{climate_histories}}
 
 For examples why not see the wonderful Bclim vignette (available at https://cran.r-project.org/web/packages/Bclim/index.html) and the authors personal webpage (http://mathsci.ucd.ie/~parnell_a/Bclim.html)?
 }

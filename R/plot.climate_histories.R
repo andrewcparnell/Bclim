@@ -1,16 +1,16 @@
-plot.climate_histories = function(x,dim=1,layer_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevices::rgb(0,0,1,0.2), col_ribbon=grDevices::rgb(1,0,0,0.4),col_representative=grDevices::rgb(0,1,0),present_left=TRUE,...) {
+plot.climate_histories = function(x,dim=1,slice_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevices::rgb(0,0,1,0.2), col_ribbon=grDevices::rgb(1,0,0,0.4),col_representative=grDevices::rgb(0,1,0),present_left=TRUE,...) {
 
 # Get extra arguments if provided
 ex = list(...)
 
-clim_names = dimnames(x$layer_clouds$layer_clouds)[[3]]
+clim_names = dimnames(x$slice_clouds$slice_clouds)[[3]]
 if(is.null(ex$xlab)) ex$xlab = 'Age (k cal years BP)'
 if(is.null(ex$ylab)) ex$ylab = clim_names[dim]
 
 # First create base plot
 x_range = range(x$time_grid)
 if(!present_left) x_range = rev(x_range)
-y_range = range(x$layer_clouds$layer_clouds[,,dim])
+y_range = range(x$slice_clouds$slice_clouds[,,dim])
 
 if(is.null(ex$xlim)) ex$xlim = x_range
 if(is.null(ex$ylim)) ex$ylim = y_range
@@ -24,19 +24,19 @@ args = utils::modifyList(ex, list(...))
 do.call("plot", args)
 
 graphics::axis(side=1,at=pretty(x$time_grid,n=10))
-graphics::axis(side=2,at=pretty(x$layer_clouds$layer_clouds[,,dim],n=10), las = ex$las)
+graphics::axis(side=2,at=pretty(x$slice_clouds$slice_clouds[,,dim],n=10), las = ex$las)
 graphics::grid()
 
 # Get some objects to make coding neater
-n_layers = x$layer_clouds$n_layers
-n_samples = x$layer_clouds$n_samples
+n_slices = x$slice_clouds$n_slices
+n_samples = x$slice_clouds$n_samples
 
-# Second add in layer clouds if required
-if(layer_clouds) {
-  if(is.null(chron)) stop("A chronology is required for plotting layer clouds")
-  for(i in 1:n_layers) {
+# Second add in slice clouds if required
+if(slice_clouds) {
+  if(is.null(chron)) stop("A chronology is required for plotting slice clouds")
+  for(i in 1:n_slices) {
     # Get current MDPs and a suitable number of chronologies to match
-    curr_MDP = x$layer_clouds$layer_clouds[,i,dim]
+    curr_MDP = x$slice_clouds$slice_clouds[,i,dim]
     if(n_samples>nrow(chron)) {
       curr_chron = sample(chron[,i],size=n_samples,replace=TRUE)
     } else {
@@ -88,9 +88,9 @@ if(layer_clouds) {
       }
     # End of if statement for stripe line
     }
-  # End of loop through layers
+  # End of loop through slices
   }
-# End of layer_clouds if statement
+# End of slice_clouds if statement
 }
 
 # Third add in climate ribbon if required

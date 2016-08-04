@@ -1,4 +1,4 @@
-layer_clouds = function(pollen, path_to_rs = 'http://mathsci.ucd.ie/~parnell_a/', n_samples=1000) {
+slice_clouds = function(pollen, path_to_rs = 'http://mathsci.ucd.ie/~parnell_a/', n_samples=1000) {
 
 # Function to turn pollen data into marginal data posteriors and then fit them to mixtures of normal distributions
 
@@ -78,8 +78,8 @@ dimnames(MDP) = list(NULL,NULL,c("GDD5","MTCO","AET/PET"))
 # Divide AET/PET by 1000 so that it's a proportion again
 MDP[,,3] = MDP[,,3]/1000
 
-Bclimdata = list(layer_clouds=MDP,n_samples=n_samples,n_layers=nslices,n_dimensions=3)
-class(Bclimdata) = 'layer_clouds'
+Bclimdata = list(slice_clouds=MDP,n_samples=n_samples,n_slices=nslices,n_dimensions=3)
+class(Bclimdata) = 'slice_clouds'
 return(Bclimdata)
 
 }

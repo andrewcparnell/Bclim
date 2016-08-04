@@ -89,20 +89,20 @@ Roya_pollen = read.table(system.file("extdata",
 # Extract the chronologies - Bclim requires them in thousands of years
 Roya_chronologies = Roya_chron$thetaPredict/1000
 
-# Run the single layer climate clouds
-Roya_layers = layer_clouds(Roya_pollen)
+# Run the single slice climate clouds
+Roya_slices = slice_clouds(Roya_pollen)
 
 # Run the climate histories function - 
-Roya_histories = climate_histories(layer_clouds = Roya_layers,
+Roya_histories = climate_histories(slice_clouds = Roya_slices,
                               chronology = Roya_chronologies,
                               time_grid = seq(0,16,by=0.1))
 ```
 
-We can plot a single layer of the climate clouds:
+We can plot a single slice of the climate clouds:
 ```{r}
-# Plot a single layer cloud if required - plot layer 50
+# Plot a single slice cloud if required - plot slice 50
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories$layer_clouds,layer=50, dims=2:3, main='Layer 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
+plot(Roya_histories$slice_clouds,slice=50, dims=2:3, main='slice 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
 ```
 
 Plot the climate histories:
@@ -110,14 +110,14 @@ Plot the climate histories:
 # Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories, most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
-legend('topleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('topleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
-legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('bottomleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
-legend('bottomleft',legend=c('Layer clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+legend('bottomleft',legend=c('slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
 ```
 
 We can summarise the histories with e.g. (results not shown)

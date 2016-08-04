@@ -6,7 +6,7 @@
 Create palaeoclimate reconstructions from pollen cores
 }
 \description{
-This package takes pollen counts and chronological data to produce climate histories. The package runs in two stages, first by calling \code{\link{layer_clouds}} and subsequently via \code{\link{climate_histories}}.
+This package takes pollen counts and chronological data to produce climate histories. The package runs in two stages, first by calling \code{\link{slice_clouds}} and subsequently via \code{\link{climate_histories}}.
 }
 \details{
 \tabular{ll}{
@@ -16,7 +16,7 @@ Version: \tab 3.0.0\cr
 Date: \tab 2015-12-14\cr
 License: \tab GPL >=2 \cr
 }
-See the functions \code{\link{layer_clouds}} and \code{\link{climate_histories}} for a full description of the workings of the package. See the package vignette for worked examples
+See the functions \code{\link{slice_clouds}} and \code{\link{climate_histories}} for a full description of the workings of the package. See the package vignette for worked examples
 }
 \author{
 Andrew Parnell, Thinh Doan and James Sweeney
@@ -34,5 +34,5 @@ Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time un
 \keyword{ smooth }
 \keyword{ package }
 \seealso{
-\code{\link{layer_clouds}}, \code{\link{climate_histories}}
+\code{\link{slice_clouds}}, \code{\link{climate_histories}}
 }
