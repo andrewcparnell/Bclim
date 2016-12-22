@@ -16,7 +16,7 @@ knitr::opts_chunk$set(fig.width=7, fig.align = 'center',
 
 ## Introduction
 
-This vignette contains the code and associated descriptions to re-create the plots given in the Parnell et al submitted paper _Joint palaeoclimate reconstruction from pollen data via forward models and climate histories_. It is not meant to be a completed vignette, and it is not a complete instruction manual yet. If you spot bugs or mistakes please post to the [GitHub repository](http://github.com/andrewcparnell/Bclim). Some of the code below takes a long time to run, so you can shortcut the steps by downloading the resulting files from [my website](http://mathsci.ucd.ie/~parnell_a/). The places where this is relevant are all given in the code below. 
+This vignette contains the code and associated descriptions to re-create the plots given in the Parnell et al submitted paper _Joint palaeoclimate reconstruction from pollen data via forward models and climate histories_. It is not meant to be a completed vignette, and it is not a complete instruction manual yet. If you spot bugs or mistakes please post to the [GitHub repository](http://github.com/andrewcparnell/Bclim). Some of the code below takes a long time to run, so you can shortcut the steps by downloading the resulting files from [my website](https://maths.ucd.ie/parnell/). The places where this is relevant are all given in the code below. 
 
 ## Installation
 

@@ -1,9 +1,10 @@
-slice_clouds = function(pollen, path_to_rs = 'http://mathsci.ucd.ie/~parnell_a/', n_samples=1000) {
+slice_clouds = function(pollen, path_to_rs = 'https://maths.ucd.ie/parnell/', n_samples=1000) {
 
 # Function to turn pollen data into marginal data posteriors and then fit them to mixtures of normal distributions
 
 # Load in the response surfaces from the package
 required.data3D = NULL # Fix so that R doesn't complain about 'visible bindings'
+browser()
 con = url(paste0(path_to_rs,'requireddata3D.RData'))
 load(con)
 
