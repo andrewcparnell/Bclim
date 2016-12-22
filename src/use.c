@@ -1,6 +1,7 @@
 // A couple of files that more than one thingy uses
 #include<R.h>
 #include<Rmath.h>
+#include<Rinternals.h>
 #include<stdlib.h>
 
 #define eps 1.0e-32
