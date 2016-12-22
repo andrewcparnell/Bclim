@@ -1,3 +1,26 @@
+#' Plots of posterior Bclim climate histories
+#'
+#' Create plots of climate histories from a Bclim run. For examples why not see the wonderful Bclim vignette (available at https://cran.r-project.org/web/packages/Bclim/index.html) and the author's personal webpage (https://maths.ucd.ie/parnell)?
+#'
+#' @param x The output of a Bclim run from \code{\link{climate_histories}}
+#' @param dim The chosen climate dimension. This could be GDD5 (dim=1), MTCO (dim=2) or AET/PET (dim=3)
+#' @param slice_clouds Whether to ploy the individual layer clouds (default TRUE)
+#' @param chron A chronology file (see \code{\link{climate_histories}} for details). Only required if layer_clouds=TRUE
+#' @param climate_ribbon Whether to plot the climate ribbon, i.e. the time slices quantiles (default=TRUE)
+#' @param most_representative The number of representative climate histories to plot. See Details section below. Can be set to zero if none are required
+#' @param conf The confidence levels of the layer clouds and the climate histories. Default is 95\%, 75\% and 50\% shading
+#' @param col_clouds The colour of the climate clouds. Default is blue with 20\% transparency
+#' @param col_ribbon The colour of the climate ribbon. Default is red with 40\% transparency
+#' @param col_representative The colour of the representative climate histories. Default is green
+#' @param present_left Whether the present (i.e. 0 years before present) should be on the left or the right of the plot. Default is to put it on the left
+#' @param ... Other arguments to the plot function, such as axis labels, titles etc
+#'
+#' @details This function creates the default Bclim plots of climate histories and layer clouds from a Bclim run. Users can turn on or off the layer clouds and summaries of the the climate histories (the `climate ribbon'), and change the confidence level shown on the plots. The function also allows for a number of `representative histories' to be plotted. These are considered to be the climate histories that are the median distance away from the point-wise medians.
+#'
+#' @seealso The main Bclim functions are \code{\link{slice_clouds}} and \code{\link{climate_histories}}.
+#'
+#' @return No output, just a plot
+#' @export
 plot.climate_histories = function(x,dim=1,slice_clouds=TRUE,chron=NULL,climate_ribbon=TRUE,most_representative=1,conf=c(0.95,0.75,0.5), col_clouds = grDevices::rgb(0,0,1,0.2), col_ribbon=grDevices::rgb(1,0,0,0.4),col_representative=grDevices::rgb(0,1,0),present_left=TRUE,...) {
 
 # Get extra arguments if provided
