@@ -30,7 +30,7 @@ void BclimMCMC3D(int *G,int *n, int *m,int *nchrons, double *MixPro, double *Mix
 // vstore is variance output, chronstore are used chronologies, cstore is used for climates
 
 // Declare indicators
-int i,j,k,l,j2,j3,iter;
+int i,j,k,l,iter; // j2,j3
 	
 // Get a new seed
 GetRNGstate();
@@ -117,7 +117,7 @@ DMstar = (double **)calloc(*n, sizeof(double *));
 for(i=0;i<*n;i++) DMstar[i] = (double *)calloc(*m, sizeof(double));
 
 // Some final vectors I need
-double *MDR,*MDM,*MDRstar,*MDMstar,*D,*Wupper,*Wdiag;
+double *MDR,*MDM,*MDRstar,*MDMstar,*D; // *Wupper ,*Wdiag
 D = (double *)calloc(*n, sizeof(double));
 MDR = (double *)calloc(*m, sizeof(double));
 MDM = (double *)calloc(*m, sizeof(double));
