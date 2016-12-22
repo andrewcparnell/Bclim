@@ -32,6 +32,8 @@
 #' 
 #' @references Parnell, A. C., et al. (2015), Bayesian inference for palaeoclimate with time uncertainty and stochastic volatility. Journal of the Royal Statistical Society: Series C (Applied Statistics), 64: 115–138.
 #' 
+#' @useDynLib BclimMCMC3D
+#' 
 #' @seealso \code{\link{slice_clouds}} for producing the input for this function. See \code{\link{plot.climate_histories}} and  \code{\link{summary.climate_histories}} for plotting and summary details
 #' 
 #' @export

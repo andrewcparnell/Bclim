@@ -9,6 +9,8 @@
 #'
 #' @details A slice cloud is a multivariate probability distribution of the three climate dimensions (Growing Degree Days above 5C, GDD5; Mean Temperature of Coldest Month, MTCO; the ratio of actual to potential evapotranspiration, AET/PET) given the pollen information at that slice only. This function loops through each slice in the core to produce slice clouds which represent the information about climate obtained only from that slice of pollen. See references below for the technical details of this technique
 #'
+#' @useDynLib PalaeoRecon3D
+#'
 #' @references Fore more detail on the algorithm see:
 #' Salter-Townshend, M. and J. Haslett (2012). Fast Inversion of a Flexible Regression Model for Multivariate, Zero-Inflated Pollen Counts. Environmetrics.
 #' Sweeney, J. (2012). Advances in Bayesian Model Development and Inversion in Multivariate Inverse Inference Problems with application to palaeoclimate reconstruction. Ph. D. thesis, Trinity College Dublin.
