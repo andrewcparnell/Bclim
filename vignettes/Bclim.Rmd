@@ -92,7 +92,7 @@ Roya_chronologies = Roya_chron$thetaPredict/1000
 # Run the single slice climate clouds
 Roya_slices = slice_clouds(Roya_pollen)
 
-# Run the climate histories function - 
+# Run the climate histories function
 Roya_histories = climate_histories(slice_clouds = Roya_slices,
                               chronology = Roya_chronologies,
                               time_grid = seq(0,16,by=0.1))
