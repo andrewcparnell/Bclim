@@ -17,6 +17,8 @@
 #' 
 #' One of the key inputs to this function is a chronology. This should be a matrix of n_chron by n_slices containing sample chronologies as produced by, e.g. the R package Bchron. These are used by the \code{climate_histories} function to take account of chronological uncertainty. In the (unlikely) event that there is no chronological uncertainty, the rows of the chronologies can be identical.
 #'
+#' @importFrom mclust mclust mclustBIC
+#'
 #' @return A list object with the following elements
 #' \itemize{
 #' \item{v.store }{Samples of the posterior estimated volatilities}
