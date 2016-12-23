@@ -5,6 +5,10 @@ S3method(plot,slice_clouds)
 S3method(summary,climate_histories)
 export(climate_histories)
 export(slice_clouds)
+<<<<<<< HEAD
 importFrom(mclust,Mclust)
+=======
+importFrom(mclust,mclust)
+>>>>>>> 91c6ddc9751835876fad04ef361a2e021308ae7c
 importFrom(mclust,mclustBIC)
 useDynLib(Bclim)
