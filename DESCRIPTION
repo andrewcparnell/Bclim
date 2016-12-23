@@ -7,7 +7,6 @@ Authors@R: c(
     person("Andrew", "Parnell", email = "andrew.parnell@ucd.ie", role = "cre"),
     person("James", "Sweeney", email = "james.sweeney@ucd.ie", role = "aut"),
     person("Thinh", "Doan", email = "thinh.k.doan@gmail.com", role = "aut"))
-Author: Andrew Parnell
 Description: Takes pollen and chronology data from lake cores and produces
     a Bayesian posterior distribution of palaeoclimate from that location after
     fitting a non-linear non-Gaussian state-space model. For more details see the
