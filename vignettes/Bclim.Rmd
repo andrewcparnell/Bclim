@@ -69,13 +69,18 @@ Roya_chron = with(Roya_dates,
 We can check convergence with:
 ```{r}
 # Check convergence
-summary(Roya_chron,type='convergence') # Good
+summary(Roya_chron,
+        type='convergence') # Good
 ```
 
 And plot the chronology with
 ```{r}
 # Plot
-plot(Roya_chron,xlab='Age (cal BP)',ylab='Depth (cm)',main='Laguna de la Roya',las=1)
+plot(Roya_chron,
+     xlab='Age (cal BP)',
+     ylab='Depth (cm)',
+     main='Laguna de la Roya',
+     las=1)
 ```
 
 We can now run Bclim with:
@@ -102,22 +107,60 @@ We can plot a single slice of the climate clouds:
 ```{r}
 # Plot a single slice cloud if required - plot slice 50
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories$slice_clouds,slice=50, dims=2:3, main='slice 50',xlab='MTCO',ylab='AET/PET',col=terrain.colors(30))
+plot(Roya_histories$slice_clouds,
+     slice=50, 
+     dims=2:3, 
+     main='slice 50',
+     xlab='MTCO',
+     ylab='AET/PET',
+     col=terrain.colors(30))
 ```
 
 Plot the climate histories:
 ```{r}
 # Plot the climate histories
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories, most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='GDD5',main='Roya GDD5')
-legend('topleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+plot(Roya_histories, 
+     most_representative = 3, 
+     chron=Roya_chronologies,
+     xlab='Age (k cal years BP)',
+     ylab='GDD5',
+     main='Roya GDD5')
+legend('topleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
 
-plot(Roya_histories,dim=2,most_representative = 3,chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='MTCO',main='Roya MTCO')
-legend('bottomleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+plot(Roya_histories,
+     dim=2,
+     most_representative = 3,
+     chron=Roya_chronologies,
+     xlab='Age (k cal years BP)',
+     ylab='MTCO',
+     main='Roya MTCO')
+legend('bottomleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
 
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
-plot(Roya_histories,dim=3,most_representative = 3, chron=Roya_chronologies,xlab='Age (k cal years BP)',ylab='AET/PET',main='Roya AET/PET')
-legend('bottomleft',legend=c('Slice clouds','Climate ribbon','Representative histories'),pch=15,col=c('blue','red','green'))
+plot(Roya_histories,
+     dim = 3,
+     most_representative = 3, 
+     chron = Roya_chronologies,
+     xlab = 'Age (k cal years BP)',
+     ylab = 'AET/PET',
+     main = 'Roya AET/PET')
+legend('bottomleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
 ```
 
 We can summarise the histories with e.g. (results not shown)
@@ -165,3 +208,153 @@ p = ggplot(df,aes(x=tg,y=diff_means,colour=SNR)) +
 print(p)
 ```
 
+## Glendalough
+
+Running the same as above but with the Glendalough data
+
+We run the `Bchron` step with:
+```{r, results='hide'}
+library(Bchron)
+
+# load in dates
+Glendalough_dates = read.table(system.file("extdata", 
+                                    "Glendalough.dat", 
+                                    package = "Bclim"), 
+                        header=TRUE)
+
+# Load in the pollen depths
+Glendalough_depths = read.table(system.file("extdata", 
+                                            "Glendalough_pollen_depths.txt",
+                                            package = "Bclim"))
+
+# Run Bchron
+Glendalough_chron = with(Glendalough_dates,
+                  Bchronology(ages=Age, 
+                              ageSds=Error, 
+                              calCurves = c('normal',rep('intcal13',5)),
+                              positions=Depth, 
+                              positionThickness=Thickness, 
+                              id=id, 
+                              predictPositions=Glendalough_depths$V1,
+                              thin = 4))
+```
+
+We can check convergence with:
+```{r}
+# Check convergence
+summary(Glendalough_chron, 
+        type = 'convergence') # Good
+```
+
+And plot the chronology with
+```{r}
+# Plot
+plot(Glendalough_chron,
+     xlab='Age (cal BP)',
+     ylab='Depth (cm)',
+     main='Glendalough',
+     las=1)
+```
+
+We can now run Bclim with:
+```{r, results='hide'}
+# Load in the pollen data
+Glendalough_pollen = read.table(system.file("extdata",
+                                    "Glendalough_pollen.txt",
+                                    package = "Bclim"),
+                        header=TRUE)
+
+# Extract the chronologies - Bclim requires them in thousands of years
+Glendalough_chronologies = Glendalough_chron$thetaPredict/1000
+
+# Run the single slice climate clouds
+Glendalough_slices = slice_clouds(Glendalough_pollen)
+
+# Run the climate histories function
+Glendalough_histories = climate_histories(slice_clouds = Glendalough_slices,
+                              chronology = Glendalough_chronologies,
+                              time_grid = seq(0, 14, by = 0.1))
+```
+
+We can plot a single slice of the climate clouds:
+```{r}
+# Plot a single slice cloud if required - plot slice 50
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+plot(Glendalough_histories$slice_clouds,
+     slice=50, 
+     dims=2:3, 
+     main='slice 50',
+     xlab='MTCO',
+     ylab='AET/PET',
+     col=terrain.colors(30))
+```
+
+Plot the climate histories:
+```{r}
+# Plot the climate histories
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+plot(Glendalough_histories, 
+     most_representative = 3, 
+     chron=Glendalough_chronologies,
+     xlab='Age (k cal years BP)',
+     ylab='GDD5',
+     main='Glendalough GDD5')
+legend('topleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
+plot(Glendalough_histories,
+     dim = 2,
+     most_representative = 3,
+     chron=Glendalough_chronologies,
+     xlab='Age (k cal years BP)',
+     ylab='MTCO',
+     main='Glendalough MTCO')
+legend('bottomleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
+
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+plot(Glendalough_histories,
+     dim=3,
+     most_representative = 3, 
+     chron=Glendalough_chronologies,
+     xlab='Age (k cal years BP)',
+     ylab='AET/PET',
+     main='Glendalough AET/PET')
+legend('bottomleft',
+       legend=c('Slice clouds',
+                'Climate ribbon',
+                'Representative histories'),
+       pch=15,
+       col=c('blue','red','green'))
+```
+
+I haven't created any further plots here, but they are available by simply copying the rest of the Roya code above.
+
+
+```{r, include = FALSE, eval = FALSE}
+pdf(file = 'Glendalough_MTCO_20170428.pdf', width = 12, height = 6)
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
+plot(Glendalough_histories,
+     dim = 2,
+     most_representative = 1,
+     chron=Glendalough_chronologies,
+     conf = c(0.95, 0.5),
+     slice_clouds = FALSE,
+     ylim = c(-30, 10),
+     xlab='Age (k cal years BP)',
+     ylab= expression(degree*C),
+     main='Glendalough - Mean Temperature of the Coldest Month')
+legend('bottomleft',
+       legend=c('Climate 50/95% uncertainty ribbon',
+                'Representative history'),
+       pch=15,
+       col=c('red', 'green'))
+dev.off()
+```
