@@ -339,7 +339,8 @@ I haven't created any further plots here, but they are available by simply copyi
 
 
 ```{r, include = FALSE, eval = FALSE}
-pdf(file = 'Glendalough_MTCO_20170428.pdf', width = 12, height = 6)
+cairo_ps(file = 'Glendalough_MTCO_20170428.eps', width = 12, height = 6)
+#pdf(file = 'Glendalough_MTCO_20170428.pdf', width = 12, height = 6)
 par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01,las=1)
 plot(Glendalough_histories,
      dim = 2,
